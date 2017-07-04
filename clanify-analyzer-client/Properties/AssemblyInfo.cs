@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // Allgemeine Informationen über eine Assembly werden über die folgenden
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die einer Assembly zugeordnet sind.
-[assembly: AssemblyTitle("clanify-analyzer-client")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("clanify - Analyzer Client")]
+[assembly: AssemblyDescription("The client application to upload the demo data to the database of the analyzer.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("clanify-analyzer-client")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyProduct("clanify")]
+[assembly: AssemblyCopyright("Copyright © clanify 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

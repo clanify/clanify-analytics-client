@@ -16,7 +16,7 @@ namespace clanify_analyzer_client
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new frmMain());
+            Application.Run(new frmClient());
         }
     }
 }
