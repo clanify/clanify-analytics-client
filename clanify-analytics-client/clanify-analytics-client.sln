@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clanify-analyzer-client", "clanify-analyzer-client.csproj", "{CBCC0ED9-F206-4D66-AE24-03D33A7AF15B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clanify-analytics-client", "clanify-analytics-client.csproj", "{CBCC0ED9-F206-4D66-AE24-03D33A7AF15B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
