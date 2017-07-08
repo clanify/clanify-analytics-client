@@ -39,7 +39,23 @@
             this.lblInfoMapName = new System.Windows.Forms.Label();
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabDemoInfo = new System.Windows.Forms.TabPage();
+            this.dtpInfoMatchTime = new System.Windows.Forms.DateTimePicker();
+            this.lblInfoMatchTime = new System.Windows.Forms.Label();
             this.tabDemoHeader = new System.Windows.Forms.TabPage();
+            this.lblHeaderSignonLength = new System.Windows.Forms.Label();
+            this.txtHeaderSignonLength = new System.Windows.Forms.TextBox();
+            this.lblHeaderServerName = new System.Windows.Forms.Label();
+            this.txtHeaderServerName = new System.Windows.Forms.TextBox();
+            this.txtHeaderProtocol = new System.Windows.Forms.TextBox();
+            this.lblHeaderProtocol = new System.Windows.Forms.Label();
+            this.lblHeaderMapName = new System.Windows.Forms.Label();
+            this.txtHeaderMapName = new System.Windows.Forms.TextBox();
+            this.lblHeaderGameDirectory = new System.Windows.Forms.Label();
+            this.txtHeaderGameDirectory = new System.Windows.Forms.TextBox();
+            this.lblHeaderFilestamp = new System.Windows.Forms.Label();
+            this.txtHeaderFilestamp = new System.Windows.Forms.TextBox();
+            this.lblHeaderClientName = new System.Windows.Forms.Label();
+            this.txtHeaderClientName = new System.Windows.Forms.TextBox();
             this.lblHeaderPlaybackTime = new System.Windows.Forms.Label();
             this.txtHeaderPlaybackTime = new System.Windows.Forms.TextBox();
             this.lblHeaderPlaybackTicks = new System.Windows.Forms.Label();
@@ -48,23 +64,14 @@
             this.txtHeaderPlaybackFrames = new System.Windows.Forms.TextBox();
             this.lblHeaderNetworkProtocol = new System.Windows.Forms.Label();
             this.txtHeaderNetworkProtocol = new System.Windows.Forms.TextBox();
-            this.txtHeaderClientName = new System.Windows.Forms.TextBox();
-            this.lblHeaderClientName = new System.Windows.Forms.Label();
-            this.txtHeaderFilestamp = new System.Windows.Forms.TextBox();
-            this.lblHeaderFilestamp = new System.Windows.Forms.Label();
-            this.txtHeaderGameDirectory = new System.Windows.Forms.TextBox();
-            this.lblHeaderGameDirectory = new System.Windows.Forms.Label();
-            this.txtHeaderMapName = new System.Windows.Forms.TextBox();
-            this.lblHeaderMapName = new System.Windows.Forms.Label();
-            this.lblHeaderProtocol = new System.Windows.Forms.Label();
-            this.txtHeaderProtocol = new System.Windows.Forms.TextBox();
-            this.txtHeaderServerName = new System.Windows.Forms.TextBox();
-            this.lblHeaderServerName = new System.Windows.Forms.Label();
-            this.txtHeaderSignonLength = new System.Windows.Forms.TextBox();
-            this.lblHeaderSignonLength = new System.Windows.Forms.Label();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.btnSettings = new System.Windows.Forms.Button();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.tslblConnState = new System.Windows.Forms.ToolStripStatusLabel();
             this.tcMain.SuspendLayout();
             this.tabDemoInfo.SuspendLayout();
             this.tabDemoHeader.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // txtSelectDemo
@@ -118,14 +125,14 @@
             // 
             // dtpInfoMatchDate
             // 
-            this.dtpInfoMatchDate.CustomFormat = "dd-MM-yyyy";
+            this.dtpInfoMatchDate.CustomFormat = "";
             this.dtpInfoMatchDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.dtpInfoMatchDate.Location = new System.Drawing.Point(51, 18);
             this.dtpInfoMatchDate.MaxDate = new System.DateTime(2020, 12, 31, 0, 0, 0, 0);
             this.dtpInfoMatchDate.Name = "dtpInfoMatchDate";
             this.dtpInfoMatchDate.Size = new System.Drawing.Size(97, 20);
             this.dtpInfoMatchDate.TabIndex = 0;
-            this.dtpInfoMatchDate.Value = new System.DateTime(2017, 7, 4, 0, 0, 0, 0);
+            this.dtpInfoMatchDate.Value = new System.DateTime(2017, 7, 5, 0, 0, 0, 0);
             // 
             // btnReadDemoHeader
             // 
@@ -135,7 +142,7 @@
             this.btnReadDemoHeader.TabIndex = 3;
             this.btnReadDemoHeader.Text = "Info";
             this.btnReadDemoHeader.UseVisualStyleBackColor = true;
-            this.btnReadDemoHeader.Click += new System.EventHandler(this.btnImportDemo_Click);
+            this.btnReadDemoHeader.Click += new System.EventHandler(this.btnReadDemoHeader_Click);
             // 
             // cmbInfoMapName
             // 
@@ -167,6 +174,8 @@
             // 
             // tabDemoInfo
             // 
+            this.tabDemoInfo.Controls.Add(this.dtpInfoMatchTime);
+            this.tabDemoInfo.Controls.Add(this.lblInfoMatchTime);
             this.tabDemoInfo.Controls.Add(this.lblInfoMapName);
             this.tabDemoInfo.Controls.Add(this.cmbInfoMapName);
             this.tabDemoInfo.Controls.Add(this.cmbInfoEventName);
@@ -180,6 +189,24 @@
             this.tabDemoInfo.TabIndex = 0;
             this.tabDemoInfo.Text = "Info";
             this.tabDemoInfo.UseVisualStyleBackColor = true;
+            // 
+            // dtpInfoMatchTime
+            // 
+            this.dtpInfoMatchTime.Format = System.Windows.Forms.DateTimePickerFormat.Time;
+            this.dtpInfoMatchTime.Location = new System.Drawing.Point(185, 18);
+            this.dtpInfoMatchTime.MaxDate = new System.DateTime(2020, 12, 31, 0, 0, 0, 0);
+            this.dtpInfoMatchTime.Name = "dtpInfoMatchTime";
+            this.dtpInfoMatchTime.Size = new System.Drawing.Size(84, 20);
+            this.dtpInfoMatchTime.TabIndex = 7;
+            // 
+            // lblInfoMatchTime
+            // 
+            this.lblInfoMatchTime.AutoSize = true;
+            this.lblInfoMatchTime.Location = new System.Drawing.Point(154, 22);
+            this.lblInfoMatchTime.Name = "lblInfoMatchTime";
+            this.lblInfoMatchTime.Size = new System.Drawing.Size(25, 13);
+            this.lblInfoMatchTime.TabIndex = 6;
+            this.lblInfoMatchTime.Text = "Zeit";
             // 
             // tabDemoHeader
             // 
@@ -212,6 +239,132 @@
             this.tabDemoHeader.TabIndex = 1;
             this.tabDemoHeader.Text = "Header";
             this.tabDemoHeader.UseVisualStyleBackColor = true;
+            // 
+            // lblHeaderSignonLength
+            // 
+            this.lblHeaderSignonLength.AutoSize = true;
+            this.lblHeaderSignonLength.Location = new System.Drawing.Point(239, 157);
+            this.lblHeaderSignonLength.Name = "lblHeaderSignonLength";
+            this.lblHeaderSignonLength.Size = new System.Drawing.Size(76, 13);
+            this.lblHeaderSignonLength.TabIndex = 35;
+            this.lblHeaderSignonLength.Text = "Signon Length";
+            // 
+            // txtHeaderSignonLength
+            // 
+            this.txtHeaderSignonLength.Enabled = false;
+            this.txtHeaderSignonLength.Location = new System.Drawing.Point(321, 154);
+            this.txtHeaderSignonLength.Name = "txtHeaderSignonLength";
+            this.txtHeaderSignonLength.ReadOnly = true;
+            this.txtHeaderSignonLength.Size = new System.Drawing.Size(110, 20);
+            this.txtHeaderSignonLength.TabIndex = 34;
+            // 
+            // lblHeaderServerName
+            // 
+            this.lblHeaderServerName.AutoSize = true;
+            this.lblHeaderServerName.Location = new System.Drawing.Point(246, 131);
+            this.lblHeaderServerName.Name = "lblHeaderServerName";
+            this.lblHeaderServerName.Size = new System.Drawing.Size(69, 13);
+            this.lblHeaderServerName.TabIndex = 33;
+            this.lblHeaderServerName.Text = "Server Name";
+            // 
+            // txtHeaderServerName
+            // 
+            this.txtHeaderServerName.Enabled = false;
+            this.txtHeaderServerName.Location = new System.Drawing.Point(321, 128);
+            this.txtHeaderServerName.Name = "txtHeaderServerName";
+            this.txtHeaderServerName.ReadOnly = true;
+            this.txtHeaderServerName.Size = new System.Drawing.Size(110, 20);
+            this.txtHeaderServerName.TabIndex = 32;
+            // 
+            // txtHeaderProtocol
+            // 
+            this.txtHeaderProtocol.Enabled = false;
+            this.txtHeaderProtocol.Location = new System.Drawing.Point(321, 102);
+            this.txtHeaderProtocol.Name = "txtHeaderProtocol";
+            this.txtHeaderProtocol.ReadOnly = true;
+            this.txtHeaderProtocol.Size = new System.Drawing.Size(110, 20);
+            this.txtHeaderProtocol.TabIndex = 31;
+            // 
+            // lblHeaderProtocol
+            // 
+            this.lblHeaderProtocol.AutoSize = true;
+            this.lblHeaderProtocol.Location = new System.Drawing.Point(269, 105);
+            this.lblHeaderProtocol.Name = "lblHeaderProtocol";
+            this.lblHeaderProtocol.Size = new System.Drawing.Size(46, 13);
+            this.lblHeaderProtocol.TabIndex = 30;
+            this.lblHeaderProtocol.Text = "Protocol";
+            // 
+            // lblHeaderMapName
+            // 
+            this.lblHeaderMapName.AutoSize = true;
+            this.lblHeaderMapName.Location = new System.Drawing.Point(36, 105);
+            this.lblHeaderMapName.Name = "lblHeaderMapName";
+            this.lblHeaderMapName.Size = new System.Drawing.Size(59, 13);
+            this.lblHeaderMapName.TabIndex = 29;
+            this.lblHeaderMapName.Text = "Map Name";
+            // 
+            // txtHeaderMapName
+            // 
+            this.txtHeaderMapName.Enabled = false;
+            this.txtHeaderMapName.Location = new System.Drawing.Point(101, 102);
+            this.txtHeaderMapName.Name = "txtHeaderMapName";
+            this.txtHeaderMapName.ReadOnly = true;
+            this.txtHeaderMapName.Size = new System.Drawing.Size(110, 20);
+            this.txtHeaderMapName.TabIndex = 28;
+            // 
+            // lblHeaderGameDirectory
+            // 
+            this.lblHeaderGameDirectory.AutoSize = true;
+            this.lblHeaderGameDirectory.Location = new System.Drawing.Point(15, 79);
+            this.lblHeaderGameDirectory.Name = "lblHeaderGameDirectory";
+            this.lblHeaderGameDirectory.Size = new System.Drawing.Size(80, 13);
+            this.lblHeaderGameDirectory.TabIndex = 27;
+            this.lblHeaderGameDirectory.Text = "Game Directory";
+            // 
+            // txtHeaderGameDirectory
+            // 
+            this.txtHeaderGameDirectory.Enabled = false;
+            this.txtHeaderGameDirectory.Location = new System.Drawing.Point(101, 76);
+            this.txtHeaderGameDirectory.Name = "txtHeaderGameDirectory";
+            this.txtHeaderGameDirectory.ReadOnly = true;
+            this.txtHeaderGameDirectory.Size = new System.Drawing.Size(110, 20);
+            this.txtHeaderGameDirectory.TabIndex = 26;
+            // 
+            // lblHeaderFilestamp
+            // 
+            this.lblHeaderFilestamp.AutoSize = true;
+            this.lblHeaderFilestamp.Location = new System.Drawing.Point(44, 53);
+            this.lblHeaderFilestamp.Name = "lblHeaderFilestamp";
+            this.lblHeaderFilestamp.Size = new System.Drawing.Size(51, 13);
+            this.lblHeaderFilestamp.TabIndex = 25;
+            this.lblHeaderFilestamp.Text = "Filestamp";
+            // 
+            // txtHeaderFilestamp
+            // 
+            this.txtHeaderFilestamp.Enabled = false;
+            this.txtHeaderFilestamp.Location = new System.Drawing.Point(101, 50);
+            this.txtHeaderFilestamp.Name = "txtHeaderFilestamp";
+            this.txtHeaderFilestamp.ReadOnly = true;
+            this.txtHeaderFilestamp.Size = new System.Drawing.Size(110, 20);
+            this.txtHeaderFilestamp.TabIndex = 24;
+            // 
+            // lblHeaderClientName
+            // 
+            this.lblHeaderClientName.AutoSize = true;
+            this.lblHeaderClientName.Location = new System.Drawing.Point(31, 27);
+            this.lblHeaderClientName.Name = "lblHeaderClientName";
+            this.lblHeaderClientName.Size = new System.Drawing.Size(64, 13);
+            this.lblHeaderClientName.TabIndex = 23;
+            this.lblHeaderClientName.Text = "Client Name";
+            // 
+            // txtHeaderClientName
+            // 
+            this.txtHeaderClientName.Enabled = false;
+            this.txtHeaderClientName.Location = new System.Drawing.Point(101, 24);
+            this.txtHeaderClientName.Name = "txtHeaderClientName";
+            this.txtHeaderClientName.ReadOnly = true;
+            this.txtHeaderClientName.Size = new System.Drawing.Size(110, 20);
+            this.txtHeaderClientName.TabIndex = 22;
             // 
             // lblHeaderPlaybackTime
             // 
@@ -285,137 +438,49 @@
             this.txtHeaderNetworkProtocol.Size = new System.Drawing.Size(110, 20);
             this.txtHeaderNetworkProtocol.TabIndex = 14;
             // 
-            // txtHeaderClientName
+            // btnSave
             // 
-            this.txtHeaderClientName.Enabled = false;
-            this.txtHeaderClientName.Location = new System.Drawing.Point(101, 24);
-            this.txtHeaderClientName.Name = "txtHeaderClientName";
-            this.txtHeaderClientName.ReadOnly = true;
-            this.txtHeaderClientName.Size = new System.Drawing.Size(110, 20);
-            this.txtHeaderClientName.TabIndex = 22;
+            this.btnSave.Location = new System.Drawing.Point(93, 253);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(75, 23);
+            this.btnSave.TabIndex = 5;
+            this.btnSave.Text = "Speichern";
+            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
-            // lblHeaderClientName
+            // btnSettings
             // 
-            this.lblHeaderClientName.AutoSize = true;
-            this.lblHeaderClientName.Location = new System.Drawing.Point(31, 27);
-            this.lblHeaderClientName.Name = "lblHeaderClientName";
-            this.lblHeaderClientName.Size = new System.Drawing.Size(64, 13);
-            this.lblHeaderClientName.TabIndex = 23;
-            this.lblHeaderClientName.Text = "Client Name";
+            this.btnSettings.Location = new System.Drawing.Point(392, 253);
+            this.btnSettings.Name = "btnSettings";
+            this.btnSettings.Size = new System.Drawing.Size(85, 23);
+            this.btnSettings.TabIndex = 6;
+            this.btnSettings.Text = "Einstellungen";
+            this.btnSettings.UseVisualStyleBackColor = true;
+            this.btnSettings.Click += new System.EventHandler(this.btnSettings_Click);
             // 
-            // txtHeaderFilestamp
+            // statusStrip1
             // 
-            this.txtHeaderFilestamp.Enabled = false;
-            this.txtHeaderFilestamp.Location = new System.Drawing.Point(101, 50);
-            this.txtHeaderFilestamp.Name = "txtHeaderFilestamp";
-            this.txtHeaderFilestamp.ReadOnly = true;
-            this.txtHeaderFilestamp.Size = new System.Drawing.Size(110, 20);
-            this.txtHeaderFilestamp.TabIndex = 24;
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tslblConnState});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 285);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(489, 22);
+            this.statusStrip1.TabIndex = 7;
+            this.statusStrip1.Text = "statusStrip1";
             // 
-            // lblHeaderFilestamp
+            // tslblConnState
             // 
-            this.lblHeaderFilestamp.AutoSize = true;
-            this.lblHeaderFilestamp.Location = new System.Drawing.Point(44, 53);
-            this.lblHeaderFilestamp.Name = "lblHeaderFilestamp";
-            this.lblHeaderFilestamp.Size = new System.Drawing.Size(51, 13);
-            this.lblHeaderFilestamp.TabIndex = 25;
-            this.lblHeaderFilestamp.Text = "Filestamp";
-            // 
-            // txtHeaderGameDirectory
-            // 
-            this.txtHeaderGameDirectory.Enabled = false;
-            this.txtHeaderGameDirectory.Location = new System.Drawing.Point(101, 76);
-            this.txtHeaderGameDirectory.Name = "txtHeaderGameDirectory";
-            this.txtHeaderGameDirectory.ReadOnly = true;
-            this.txtHeaderGameDirectory.Size = new System.Drawing.Size(110, 20);
-            this.txtHeaderGameDirectory.TabIndex = 26;
-            // 
-            // lblHeaderGameDirectory
-            // 
-            this.lblHeaderGameDirectory.AutoSize = true;
-            this.lblHeaderGameDirectory.Location = new System.Drawing.Point(15, 79);
-            this.lblHeaderGameDirectory.Name = "lblHeaderGameDirectory";
-            this.lblHeaderGameDirectory.Size = new System.Drawing.Size(80, 13);
-            this.lblHeaderGameDirectory.TabIndex = 27;
-            this.lblHeaderGameDirectory.Text = "Game Directory";
-            // 
-            // txtHeaderMapName
-            // 
-            this.txtHeaderMapName.Enabled = false;
-            this.txtHeaderMapName.Location = new System.Drawing.Point(101, 102);
-            this.txtHeaderMapName.Name = "txtHeaderMapName";
-            this.txtHeaderMapName.ReadOnly = true;
-            this.txtHeaderMapName.Size = new System.Drawing.Size(110, 20);
-            this.txtHeaderMapName.TabIndex = 28;
-            // 
-            // lblHeaderMapName
-            // 
-            this.lblHeaderMapName.AutoSize = true;
-            this.lblHeaderMapName.Location = new System.Drawing.Point(36, 105);
-            this.lblHeaderMapName.Name = "lblHeaderMapName";
-            this.lblHeaderMapName.Size = new System.Drawing.Size(59, 13);
-            this.lblHeaderMapName.TabIndex = 29;
-            this.lblHeaderMapName.Text = "Map Name";
-            // 
-            // lblHeaderProtocol
-            // 
-            this.lblHeaderProtocol.AutoSize = true;
-            this.lblHeaderProtocol.Location = new System.Drawing.Point(269, 105);
-            this.lblHeaderProtocol.Name = "lblHeaderProtocol";
-            this.lblHeaderProtocol.Size = new System.Drawing.Size(46, 13);
-            this.lblHeaderProtocol.TabIndex = 30;
-            this.lblHeaderProtocol.Text = "Protocol";
-            // 
-            // txtHeaderProtocol
-            // 
-            this.txtHeaderProtocol.Enabled = false;
-            this.txtHeaderProtocol.Location = new System.Drawing.Point(321, 102);
-            this.txtHeaderProtocol.Name = "txtHeaderProtocol";
-            this.txtHeaderProtocol.ReadOnly = true;
-            this.txtHeaderProtocol.Size = new System.Drawing.Size(110, 20);
-            this.txtHeaderProtocol.TabIndex = 31;
-            // 
-            // txtHeaderServerName
-            // 
-            this.txtHeaderServerName.Enabled = false;
-            this.txtHeaderServerName.Location = new System.Drawing.Point(321, 128);
-            this.txtHeaderServerName.Name = "txtHeaderServerName";
-            this.txtHeaderServerName.ReadOnly = true;
-            this.txtHeaderServerName.Size = new System.Drawing.Size(110, 20);
-            this.txtHeaderServerName.TabIndex = 32;
-            // 
-            // lblHeaderServerName
-            // 
-            this.lblHeaderServerName.AutoSize = true;
-            this.lblHeaderServerName.Location = new System.Drawing.Point(246, 131);
-            this.lblHeaderServerName.Name = "lblHeaderServerName";
-            this.lblHeaderServerName.Size = new System.Drawing.Size(69, 13);
-            this.lblHeaderServerName.TabIndex = 33;
-            this.lblHeaderServerName.Text = "Server Name";
-            // 
-            // txtHeaderSignonLength
-            // 
-            this.txtHeaderSignonLength.Enabled = false;
-            this.txtHeaderSignonLength.Location = new System.Drawing.Point(321, 154);
-            this.txtHeaderSignonLength.Name = "txtHeaderSignonLength";
-            this.txtHeaderSignonLength.ReadOnly = true;
-            this.txtHeaderSignonLength.Size = new System.Drawing.Size(110, 20);
-            this.txtHeaderSignonLength.TabIndex = 34;
-            // 
-            // lblHeaderSignonLength
-            // 
-            this.lblHeaderSignonLength.AutoSize = true;
-            this.lblHeaderSignonLength.Location = new System.Drawing.Point(239, 157);
-            this.lblHeaderSignonLength.Name = "lblHeaderSignonLength";
-            this.lblHeaderSignonLength.Size = new System.Drawing.Size(76, 13);
-            this.lblHeaderSignonLength.TabIndex = 35;
-            this.lblHeaderSignonLength.Text = "Signon Length";
+            this.tslblConnState.Name = "tslblConnState";
+            this.tslblConnState.Size = new System.Drawing.Size(0, 17);
             // 
             // frmClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(489, 284);
+            this.ClientSize = new System.Drawing.Size(489, 307);
+            this.Controls.Add(this.statusStrip1);
+            this.Controls.Add(this.btnSettings);
+            this.Controls.Add(this.btnSave);
             this.Controls.Add(this.tcMain);
             this.Controls.Add(this.btnReadDemoHeader);
             this.Controls.Add(this.btnSelectDemo);
@@ -424,11 +489,14 @@
             this.Name = "frmClient";
             this.ShowIcon = false;
             this.Text = "clanify - Analytics Client";
+            this.Load += new System.EventHandler(this.frmClient_Load);
             this.tcMain.ResumeLayout(false);
             this.tabDemoInfo.ResumeLayout(false);
             this.tabDemoInfo.PerformLayout();
             this.tabDemoHeader.ResumeLayout(false);
             this.tabDemoHeader.PerformLayout();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -470,6 +538,12 @@
         private System.Windows.Forms.TextBox txtHeaderServerName;
         private System.Windows.Forms.Label lblHeaderSignonLength;
         private System.Windows.Forms.TextBox txtHeaderSignonLength;
+        private System.Windows.Forms.DateTimePicker dtpInfoMatchTime;
+        private System.Windows.Forms.Label lblInfoMatchTime;
+        private System.Windows.Forms.Button btnSave;
+        private System.Windows.Forms.Button btnSettings;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel tslblConnState;
     }
 }
 

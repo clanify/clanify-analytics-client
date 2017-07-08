@@ -1,22 +1,118 @@
-﻿using clanify_analyzer_client.Helper;
+﻿using clanify_analyzer_client.Database;
+using clanify_analyzer_client.Helper;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using MySql.Data.MySqlClient;
 
 namespace clanify_analyzer_client
 {
     public partial class frmClient : Form
     {
+        private MySql.Data.MySqlClient.MySqlConnection dbConnection = null;
+
         public frmClient()
         {
             InitializeComponent();
+        }
 
-            //TODO - initialize the list of events from database.
+        //function to intialize the database connection.
+        private void initDatabaseConnection()
+        {
+            string dbServer = "";
+            int dbPort = 3306;
+            string dbUsername = "";
+            string dbPassword = "";
+            string dbName = "";
 
-            //initialize the list of maps.
-            fillCmbMapName();
+            //check if the database server is available.
+            if (Properties.Settings.Default["database_server"].ToString().Trim() == "")
+            {
+                dbConnection = null;
+                return;
+            }
+            else
+            {
+                dbServer = Properties.Settings.Default["database_server"].ToString().Trim();
+            }
+
+            //check if the database port is available.
+            if (Properties.Settings.Default["database_port"].ToString().Trim() == "")
+            {
+                dbConnection = null;
+                return;
+            }
+            else
+            {
+                int port = 0;
+
+                if (int.TryParse(Properties.Settings.Default["database_port"].ToString().Trim(), out port))
+                {
+                    dbPort = port;
+                }
+                else
+                {
+                    dbConnection = null;
+                    return;
+                }
+            }
+
+
+            //check if the username is available.
+            if (Properties.Settings.Default["database_username"].ToString().Trim() == "")
+            {
+                dbConnection = null;
+                return;
+            }
+            else
+            {
+                dbUsername = Properties.Settings.Default["database_username"].ToString().Trim();
+            }
+
+            //check if the password is available.
+            if (Properties.Settings.Default["database_password"].ToString().Trim() == "")
+            {
+                dbConnection = null;
+                return;
+            }
+            else
+            {
+                dbPassword = Properties.Settings.Default["database_password"].ToString().Trim();
+            }
+
+            //check if the database name is available.
+            if (Properties.Settings.Default["database_name"].ToString().Trim() == "")
+            {
+                dbConnection = null;
+                return;
+            }
+            else
+            {
+                dbName = Properties.Settings.Default["database_name"].ToString().Trim();
+            }
+
+            string connStr = "server=" + dbServer + ";uid=" + dbUsername + ";pwd=" + dbPassword + ";database=" + dbName;
+
+            try
+            {
+                this.dbConnection = new MySqlConnection(connStr);
+                this.dbConnection.Open();
+            }
+            catch
+            {
+                dbConnection = null;
+            }
+            finally
+            {
+                //check  a database connection is available.
+                if (this.dbConnection != null)
+                {
+                    this.dbConnection.Close();
+                }
+            }
         }
 
         //click event to get the demo file from filesystem and set to the textbox.
@@ -41,33 +137,45 @@ namespace clanify_analyzer_client
             if (dlgDemoFile.ShowDialog() == DialogResult.OK )
             {
                 txtSelectDemo.Text = dlgDemoFile.FileName;
-            } else
+            }
+            else
             {
                 txtSelectDemo.Text = String.Empty;
             }
         }
 
-        //click event to parse the demo to get all the information for export to database.
-        private void btnImportDemo_Click(object sender, EventArgs e)
+        //function to fill the combobox with all the available events.
+        private void fillCmbEventName()
         {
-            //check if the file is available to parse.
-            if (File.Exists(txtSelectDemo.Text))
-            {
-                //open the demo and parse the header to display on application.
-                DemoInfo.DemoParser demo = new DemoInfo.DemoParser(File.OpenRead(txtSelectDemo.Text));
+            //create a list with all supported events.
+            Dictionary<int, string> eventList = new Dictionary<int, string>();
+            eventList.Add(1, "ESL One Cologne 2017");
+            eventList.Add(2, "ESL One New York 2016");
 
-                //bind the events to the functions.
-                demo.HeaderParsed += HandleHeaderParsed;
+            //clear the list of events to initialize.
+            cmbInfoEventName.Items.Clear();
 
-                //parse the header of the demo to get the common information.
-                demo.ParseHeader();
-            }  else
+            //init a empty list for all combobox items.
+            List<ComboBoxItem> items = new List<ComboBoxItem>();
+
+            //run through all events to initialize the list of events.
+            foreach (KeyValuePair<int, string> eventListItem in eventList )
             {
-                MessageBox.Show("The demo file isn't available!", "clanify - Analytics Client", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }        
+                ComboBoxItem cItem = new ComboBoxItem();
+                cItem.Text = eventListItem.Value;
+                cItem.Value = eventListItem.Key;
+                items.Add(cItem);
+            }
+
+            //set the list as datasource.
+            cmbInfoEventName.DataSource = items;
+            cmbInfoEventName.DisplayMember = "Text";
+            cmbInfoEventName.ValueMember = "Value";
+
+            //set the first item as default.
+            cmbInfoEventName.SelectedValue = 1;
         }
-
+        
         //function to fill the combobox with all the available maps.
         private void fillCmbMapName()
         {
@@ -130,10 +238,117 @@ namespace clanify_analyzer_client
             {
                 lblHeaderMapName.ForeColor = Color.Red;
                 lblInfoMapName.ForeColor = Color.Red;
-            } else
+            }
+            else
             {
                 lblHeaderMapName.ForeColor = Color.Black;
                 lblInfoMapName.ForeColor = Color.Black;
+            }
+        }
+
+        //click event to parse the demo to get all the information of the demo.
+        private void btnReadDemoHeader_Click(object sender, EventArgs e)
+        {
+            //check if the file is available to parse.
+            if (File.Exists(txtSelectDemo.Text))
+            {
+                //open the demo and parse the header to display on application.
+                DemoInfo.DemoParser demo = new DemoInfo.DemoParser(File.OpenRead(txtSelectDemo.Text));
+
+                //bind the events to the functions.
+                demo.HeaderParsed += HandleHeaderParsed;
+
+                //parse the header of the demo to get the common information.
+                demo.ParseHeader();
+            }
+            else
+            {
+                MessageBox.Show("The demo file isn't available!", "clanify - Analytics Client", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+        }
+
+        //load event to load the controls of the form.
+        private void frmClient_Load(object sender, EventArgs e)
+        {
+            //initialize the list of events and maps.
+            this.fillCmbEventName();
+            this.fillCmbMapName();
+
+            //set the default date and time to the current day and hour.
+            DateTime currentDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, 0, 0);
+
+            //initialize the date and time picker.
+            dtpInfoMatchDate.Value = currentDateTime;
+            dtpInfoMatchTime.Value = currentDateTime;
+
+            //init the database connection.
+            this.initDatabaseConnection();
+
+            //check and show the connection state.
+            checkConnectionDB();
+        }
+
+        //event to save the match information in database.
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            //get the emtpy datatable to save the match information.
+            TableMatch clsTableMatch = new TableMatch(this.dbConnection);
+            DataTable dtMatch = clsTableMatch.getTableSchema();
+
+            //get the date and time value from the picker and set the merged one.
+            DateTime date = dtpInfoMatchDate.Value;
+            DateTime time = dtpInfoMatchTime.Value;
+            DateTime matchStart = new DateTime(date.Year, date.Month, date.Day, time.Hour, date.Minute, 0);
+
+            //set the information from form to new row.
+            DataRow drNewMatch = dtMatch.NewRow();
+            drNewMatch["id"] = DBNull.Value;
+            drNewMatch["event_id"] = cmbInfoEventName.SelectedValue;
+            drNewMatch["match_start"] = matchStart;
+            drNewMatch["client_name"] = txtHeaderClientName.Text.ToString();
+            drNewMatch["filestamp"] = txtHeaderFilestamp.Text.ToString();
+            drNewMatch["game_directory"] = txtHeaderGameDirectory.Text.ToString();
+            drNewMatch["map_name"] = cmbInfoMapName.SelectedValue.ToString();
+            drNewMatch["network_protocol"] = txtHeaderNetworkProtocol.Text.ToString();
+            drNewMatch["playback_frames"] = txtHeaderPlaybackFrames.Text.ToString();
+            drNewMatch["playback_ticks"] = txtHeaderPlaybackTicks.Text.ToString();
+            drNewMatch["playback_time"] = txtHeaderPlaybackTime.Text.ToString();
+            drNewMatch["protocol"] = txtHeaderProtocol.Text.ToString();
+            drNewMatch["server_name"] = txtHeaderServerName.Text.ToString();
+            drNewMatch["signon_length"] = txtHeaderSignonLength.Text.ToString();
+
+            //save the information to the database.
+            drNewMatch = clsTableMatch.saveRowMatch(drNewMatch);
+        }
+
+        //event to open the settings.
+        private void btnSettings_Click(object sender, EventArgs e)
+        {
+            //open the settings to configure the application.
+            frmSettings frmSettings = new frmSettings();
+            frmSettings.ShowDialog();
+
+            //init the database connection.
+            this.initDatabaseConnection();
+
+            //check and show the connection state.
+            checkConnectionDB();
+        }
+
+        //check the database connection and show state.
+        private void checkConnectionDB()
+        {
+            //check if the connection is successfull.
+            if (this.dbConnection != null)
+            {
+                tslblConnState.BackColor = ControlPaint.Light(Color.Green);
+                tslblConnState.Text = this.dbConnection.Database.ToString();
+            }
+            else
+            {
+                tslblConnState.BackColor = ControlPaint.Light(Color.Red);
+                tslblConnState.Text = " --- ";
             }
         }
     }
