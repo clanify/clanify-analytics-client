@@ -12,7 +12,10 @@ namespace clanify_analyzer_client
 {
     public partial class frmClient : Form
     {
-        private MySql.Data.MySqlClient.MySqlConnection dbConnection = null;
+        private MySqlConnection dbConnection = null;
+
+        private DataRow drMatch = null;
+        private DataTable dtFrags = null;
 
         public frmClient()
         {
@@ -214,6 +217,41 @@ namespace clanify_analyzer_client
             cmbInfoMapName.SelectedValue = "de_cbble";
         }
 
+        //handler for the event if a player was killed.
+        private void HandlePlayerKilled(object sender, DemoInfo.PlayerKilledEventArgs e)
+        {
+            //get the demo information.
+            DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
+
+            //set the information about the frag to a new row.
+            DataRow drNewFrag = this.dtFrags.NewRow();
+            drNewFrag["match_id"] = drMatch["id"];
+            drNewFrag["round"] = demo.TScore + demo.CTScore + 1;
+            drNewFrag["tick"] = demo.CurrentTick;
+            drNewFrag["victim_steam_id"] = e.Victim.SteamID;
+            drNewFrag["victim_weapon"] = e.Victim.ActiveWeapon.Weapon;
+            drNewFrag["victim_position_x"] = e.Victim.Position.X;
+            drNewFrag["victim_position_y"] = e.Victim.Position.Y;
+            drNewFrag["victim_position_z"] = e.Victim.Position.Z;
+            drNewFrag["victim_hp"] = e.Victim.HP;
+            drNewFrag["killer_steam_id"] = e.Killer.SteamID;
+            drNewFrag["killer_weapon"] = e.Weapon.Weapon;
+            drNewFrag["killer_position_x"] = e.Killer.Position.X;
+            drNewFrag["killer_position_y"] = e.Killer.Position.Y;
+            drNewFrag["killer_position_z"] = e.Killer.Position.Z;
+            drNewFrag["killer_hp"] = e.Killer.HP;
+            drNewFrag["is_headshot"] = e.Headshot;
+
+            //check if a assister is available.
+            if (e.Assister != null)
+            {
+                drNewFrag["assister_steam_id"] = e.Assister.SteamID;
+            }
+            
+            //set the new row to the table.
+            this.dtFrags.Rows.Add(drNewFrag);
+        }
+
         //handler for the event if the header was parsed.
         private void HandleHeaderParsed(object sender, DemoInfo.HeaderParsedEventArgs e)
         {
@@ -255,11 +293,51 @@ namespace clanify_analyzer_client
                 //open the demo and parse the header to display on application.
                 DemoInfo.DemoParser demo = new DemoInfo.DemoParser(File.OpenRead(txtSelectDemo.Text));
 
-                //bind the events to the functions.
+                //bind the header events to their handler.
                 demo.HeaderParsed += HandleHeaderParsed;
-
+                
                 //parse the header of the demo to get the common information.
                 demo.ParseHeader();
+
+                //get the emtpy datatable to save the match information.
+                TableMatch clsTableMatch = new TableMatch(this.dbConnection);
+                DataTable dtMatch = clsTableMatch.getTableSchema();
+
+                //get the date and time value from the picker and set the merged one.
+                DateTime date = dtpInfoMatchDate.Value;
+                DateTime time = dtpInfoMatchTime.Value;
+                DateTime matchStart = new DateTime(date.Year, date.Month, date.Day, time.Hour, date.Minute, 0);
+
+                //set the information from form to new row.
+                DataRow drNewMatch = dtMatch.NewRow();
+                drNewMatch["id"] = DBNull.Value;
+                drNewMatch["event_id"] = cmbInfoEventName.SelectedValue;
+                drNewMatch["match_start"] = matchStart;
+                drNewMatch["client_name"] = txtHeaderClientName.Text.ToString();
+                drNewMatch["filestamp"] = txtHeaderFilestamp.Text.ToString();
+                drNewMatch["game_directory"] = txtHeaderGameDirectory.Text.ToString();
+                drNewMatch["map_name"] = cmbInfoMapName.SelectedValue.ToString();
+                drNewMatch["network_protocol"] = txtHeaderNetworkProtocol.Text.ToString();
+                drNewMatch["playback_frames"] = txtHeaderPlaybackFrames.Text.ToString();
+                drNewMatch["playback_ticks"] = txtHeaderPlaybackTicks.Text.ToString();
+                drNewMatch["playback_time"] = txtHeaderPlaybackTime.Text.ToString();
+                drNewMatch["protocol"] = txtHeaderProtocol.Text.ToString();
+                drNewMatch["server_name"] = txtHeaderServerName.Text.ToString();
+                drNewMatch["signon_length"] = txtHeaderSignonLength.Text.ToString();
+
+                //save the information to the database.
+                drNewMatch = clsTableMatch.saveRowMatch(drNewMatch);
+                this.drMatch = drNewMatch;
+
+                //init the tables for the information.
+                TableFrags clsFrags = new TableFrags(this.dbConnection);
+                this.dtFrags = clsFrags.getTableSchema();
+
+                //bind the main demo events to their handler.
+                demo.PlayerKilled += HandlePlayerKilled;
+
+                //now we can start parsing the whole demo.
+                demo.ParseToEnd();
             }
             else
             {
@@ -292,34 +370,9 @@ namespace clanify_analyzer_client
         //event to save the match information in database.
         private void btnSave_Click(object sender, EventArgs e)
         {
-            //get the emtpy datatable to save the match information.
-            TableMatch clsTableMatch = new TableMatch(this.dbConnection);
-            DataTable dtMatch = clsTableMatch.getTableSchema();
-
-            //get the date and time value from the picker and set the merged one.
-            DateTime date = dtpInfoMatchDate.Value;
-            DateTime time = dtpInfoMatchTime.Value;
-            DateTime matchStart = new DateTime(date.Year, date.Month, date.Day, time.Hour, date.Minute, 0);
-
-            //set the information from form to new row.
-            DataRow drNewMatch = dtMatch.NewRow();
-            drNewMatch["id"] = DBNull.Value;
-            drNewMatch["event_id"] = cmbInfoEventName.SelectedValue;
-            drNewMatch["match_start"] = matchStart;
-            drNewMatch["client_name"] = txtHeaderClientName.Text.ToString();
-            drNewMatch["filestamp"] = txtHeaderFilestamp.Text.ToString();
-            drNewMatch["game_directory"] = txtHeaderGameDirectory.Text.ToString();
-            drNewMatch["map_name"] = cmbInfoMapName.SelectedValue.ToString();
-            drNewMatch["network_protocol"] = txtHeaderNetworkProtocol.Text.ToString();
-            drNewMatch["playback_frames"] = txtHeaderPlaybackFrames.Text.ToString();
-            drNewMatch["playback_ticks"] = txtHeaderPlaybackTicks.Text.ToString();
-            drNewMatch["playback_time"] = txtHeaderPlaybackTime.Text.ToString();
-            drNewMatch["protocol"] = txtHeaderProtocol.Text.ToString();
-            drNewMatch["server_name"] = txtHeaderServerName.Text.ToString();
-            drNewMatch["signon_length"] = txtHeaderSignonLength.Text.ToString();
-
-            //save the information to the database.
-            drNewMatch = clsTableMatch.saveRowMatch(drNewMatch);
+            //save the frags to the database.
+            TableFrags clsTableFrags = new TableFrags(this.dbConnection);
+            clsTableFrags.saveTable(this.dtFrags);
         }
 
         //event to open the settings.

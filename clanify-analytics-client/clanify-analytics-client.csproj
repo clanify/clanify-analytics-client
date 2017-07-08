@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Database\TableFrags.cs" />
     <Compile Include="Database\TableMatch.cs" />
     <Compile Include="frmClient.cs">
       <SubType>Form</SubType>
