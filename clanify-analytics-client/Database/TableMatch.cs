@@ -70,6 +70,9 @@ namespace clanify_analyzer_client.Database
                     cmdUpdate.Parameters.AddWithValue("?server_name", drMatch["server_name"]);
                     cmdUpdate.Parameters.AddWithValue("?signon_length", drMatch["signon_length"]);
                     cmdUpdate.ExecuteNonQuery();
+
+                    //set the ID to the row.
+                    drMatch["id"] = matchID;
                 }
                 else 
                 {

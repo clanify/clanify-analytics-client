@@ -16,6 +16,7 @@ namespace clanify_analyzer_client
 
         private DataRow drMatch = null;
         private DataTable dtFrags = null;
+        private DataTable dtDamage = null;
 
         public frmClient()
         {
@@ -252,6 +253,44 @@ namespace clanify_analyzer_client
             this.dtFrags.Rows.Add(drNewFrag);
         }
 
+        //handler for the event if a player was hurt.
+        private void HandlePlayerHurt(object sender, DemoInfo.PlayerHurtEventArgs e)
+        {
+            //get the demo information.
+            DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
+
+            //set the information about the damage to a new row.
+            DataRow drNewDamage = this.dtDamage.NewRow();
+            drNewDamage["match_id"] = drMatch["id"];
+            drNewDamage["round"] = demo.TScore + demo.CTScore + 1;
+            drNewDamage["tick"] = demo.CurrentTick;
+            drNewDamage["victim_steam_id"] = e.Player.SteamID;
+            drNewDamage["victim_weapon"] = e.Player.ActiveWeapon.Weapon;
+            drNewDamage["victim_position_x"] = e.Player.Position.X;
+            drNewDamage["victim_position_y"] = e.Player.Position.Y;
+            drNewDamage["victim_position_z"] = e.Player.Position.Z;
+            drNewDamage["victim_health"] = e.Health;
+            drNewDamage["victim_health_damage"] = e.HealthDamage;
+            drNewDamage["victim_armor"] = e.Armor;
+            drNewDamage["victim_armor_damage"] = e.ArmorDamage;
+            drNewDamage["victim_hp"] = e.Player.HP;
+            drNewDamage["hitgroup"] = e.Hitgroup;
+
+            //check if a attacker is available (can be null on own damage).
+            if (e.Attacker != null)
+            {
+                drNewDamage["attacker_steam_id"] = e.Attacker.SteamID;
+                drNewDamage["attacker_weapon"] = e.Weapon.Weapon;
+                drNewDamage["attacker_position_x"] = e.Attacker.Position.X;
+                drNewDamage["attacker_position_y"] = e.Attacker.Position.Y;
+                drNewDamage["attacker_position_z"] = e.Attacker.Position.Z;
+                drNewDamage["attacker_hp"] = e.Attacker.HP;
+            }
+            
+            //set the new row to the table.
+            this.dtDamage.Rows.Add(drNewDamage);
+        }
+
         //handler for the event if the header was parsed.
         private void HandleHeaderParsed(object sender, DemoInfo.HeaderParsedEventArgs e)
         {
@@ -329,12 +368,17 @@ namespace clanify_analyzer_client
                 drNewMatch = clsTableMatch.saveRowMatch(drNewMatch);
                 this.drMatch = drNewMatch;
 
-                //init the tables for the information.
+                //init the tables for the frags information.
                 TableFrags clsFrags = new TableFrags(this.dbConnection);
                 this.dtFrags = clsFrags.getTableSchema();
 
+                //init the tables for the damage information.
+                TableDamage clsDamage = new TableDamage(this.dbConnection);
+                this.dtDamage = clsDamage.getTableSchema();
+
                 //bind the main demo events to their handler.
                 demo.PlayerKilled += HandlePlayerKilled;
+                demo.PlayerHurt += HandlePlayerHurt;
 
                 //now we can start parsing the whole demo.
                 demo.ParseToEnd();
@@ -372,7 +416,11 @@ namespace clanify_analyzer_client
         {
             //save the frags to the database.
             TableFrags clsTableFrags = new TableFrags(this.dbConnection);
-            clsTableFrags.saveTable(this.dtFrags);
+            clsTableFrags.saveTable(this.dtFrags, (Int64) drMatch["id"]);
+
+            //save the damage to the database.
+            TableDamage clsTableDamage = new TableDamage(this.dbConnection);
+            clsTableDamage.saveTable(this.dtDamage, (Int64) drMatch["id"]);
         }
 
         //event to open the settings.

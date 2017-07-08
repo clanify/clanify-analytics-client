@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using MySql.Data.MySqlClient;
+using System;
 
 namespace clanify_analyzer_client.Database
 {
@@ -39,16 +40,26 @@ namespace clanify_analyzer_client.Database
         }
 
         /// <summary>
-        /// Method to save a DataTable with rows to the database.
+        /// method to save a DataTable with rows to the database.
         /// </summary>
         /// <param name="dtFrags">The DataTable which will be saved on database.</param>
+        /// <param name="matchID">The ID of the match.</param>
         /// <returns>The state if the DataTable could be saved successfully.</returns>
-        public bool saveTable(DataTable dtFrags)
+        public bool saveTable(DataTable dtFrags, Int64 matchID)
         {
             try
             {
                 //open the connection to insert some data.
                 this.dbConnection.Open();
+
+                //create the delete statement.
+                string sqlDeleteFrags = "DELETE FROM `frags` WHERE match_id = ?match_id;";
+
+                //bind all the parameters to the statement.
+                MySqlCommand cmdDelete = this.dbConnection.CreateCommand();
+                cmdDelete.CommandText = sqlDeleteFrags;
+                cmdDelete.Parameters.AddWithValue("?match_id", matchID);
+                cmdDelete.ExecuteNonQuery();
 
                 //create the update statement.
                 string sqlInsertFrag = "INSERT INTO `frags` (`match_id`, `round`, `tick`, `victim_steam_id`, `victim_weapon`, " +
@@ -64,7 +75,7 @@ namespace clanify_analyzer_client.Database
                     //bind all the parameters to the statement.
                     MySqlCommand cmdInsert = this.dbConnection.CreateCommand();
                     cmdInsert.CommandText = sqlInsertFrag;
-                    cmdInsert.Parameters.AddWithValue("?match_id", drFrag["match_id"]);
+                    cmdInsert.Parameters.AddWithValue("?match_id", matchID);
                     cmdInsert.Parameters.AddWithValue("?round", drFrag["round"]);
                     cmdInsert.Parameters.AddWithValue("?tick", drFrag["tick"]);
                     cmdInsert.Parameters.AddWithValue("?victim_steam_id", drFrag["victim_steam_id"]);
