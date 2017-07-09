@@ -17,6 +17,7 @@ namespace clanify_analyzer_client
         private DataRow drMatch = null;
         private DataTable dtFrags = null;
         private DataTable dtDamage = null;
+        private DataTable dtPlayers = null;
 
         public frmClient()
         {
@@ -253,6 +254,28 @@ namespace clanify_analyzer_client
             this.dtFrags.Rows.Add(drNewFrag);
         }
 
+        //handler for the event if a player is bind to the server.
+        private void HandlePlayerBind(object sender, DemoInfo.PlayerBindEventArgs e)
+        {
+            //get the demo information.
+            DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
+            
+            //check if the player is a CT or T player.
+            if (e.Player.Team == DemoInfo.Team.CounterTerrorist || e.Player.Team == DemoInfo.Team.Terrorist)
+            {
+                //set the player information to a new row.
+                DataRow drNewPlayer = this.dtPlayers.NewRow();
+                drNewPlayer["steam_id"] = e.Player.SteamID;
+                drNewPlayer["name"] = e.Player.Name;
+
+                //check if the player doens't exists on the table.
+                if (this.dtPlayers.Select("steam_id = " + e.Player.SteamID).Length == 0)
+                {
+                    this.dtPlayers.Rows.Add(drNewPlayer);
+                }          
+            }
+        }
+
         //handler for the event if a player was hurt.
         private void HandlePlayerHurt(object sender, DemoInfo.PlayerHurtEventArgs e)
         {
@@ -376,10 +399,15 @@ namespace clanify_analyzer_client
                 TableDamage clsDamage = new TableDamage(this.dbConnection);
                 this.dtDamage = clsDamage.getTableSchema();
 
+                //init the tables for the player information.
+                TablePlayers clsPlayers = new TablePlayers(this.dbConnection);
+                this.dtPlayers = clsPlayers.getTableSchema();
+
                 //bind the main demo events to their handler.
                 demo.PlayerKilled += HandlePlayerKilled;
                 demo.PlayerHurt += HandlePlayerHurt;
-
+                demo.PlayerBind += HandlePlayerBind;
+                
                 //now we can start parsing the whole demo.
                 demo.ParseToEnd();
             }
@@ -421,6 +449,10 @@ namespace clanify_analyzer_client
             //save the damage to the database.
             TableDamage clsTableDamage = new TableDamage(this.dbConnection);
             clsTableDamage.saveTable(this.dtDamage, (Int64) drMatch["id"]);
+
+            //save the players to the database.
+            TablePlayers clsTablePlayers = new TablePlayers(this.dbConnection);
+            clsTablePlayers.saveTable(this.dtPlayers);
         }
 
         //event to open the settings.

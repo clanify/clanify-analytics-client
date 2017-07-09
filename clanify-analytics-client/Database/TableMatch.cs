@@ -109,7 +109,6 @@ namespace clanify_analyzer_client.Database
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
                 return null;
             }
             finally

@@ -54,6 +54,7 @@
     <Compile Include="Database\TableDamage.cs" />
     <Compile Include="Database\TableFrags.cs" />
     <Compile Include="Database\TableMatch.cs" />
+    <Compile Include="Database\TablePlayers.cs" />
     <Compile Include="frmClient.cs">
       <SubType>Form</SubType>
     </Compile>
