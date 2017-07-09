@@ -18,6 +18,8 @@ namespace clanify_analyzer_client
         private DataTable dtFrags = null;
         private DataTable dtDamage = null;
         private DataTable dtPlayers = null;
+        private DataTable dtTeams = null;
+        private DataTable dtMatchPlayers = null;
 
         public frmClient()
         {
@@ -254,25 +256,61 @@ namespace clanify_analyzer_client
             this.dtFrags.Rows.Add(drNewFrag);
         }
 
-        //handler for the event if a player is bind to the server.
-        private void HandlePlayerBind(object sender, DemoInfo.PlayerBindEventArgs e)
+        private void HandleRoundEnd(object sender, DemoInfo.RoundEndedEventArgs e)
         {
             //get the demo information.
             DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
-            
-            //check if the player is a CT or T player.
-            if (e.Player.Team == DemoInfo.Team.CounterTerrorist || e.Player.Team == DemoInfo.Team.Terrorist)
-            {
-                //set the player information to a new row.
-                DataRow drNewPlayer = this.dtPlayers.NewRow();
-                drNewPlayer["steam_id"] = e.Player.SteamID;
-                drNewPlayer["name"] = e.Player.Name;
 
-                //check if the player doens't exists on the table.
-                if (this.dtPlayers.Select("steam_id = " + e.Player.SteamID).Length == 0)
+            //only the first round should be checked to bind the players.
+            if ((demo.CTScore + demo.TScore + 1) != 1)
+            {
+                return;
+            }
+
+            //set the information about the two teams.
+            DataRow drNewTeamCT = this.dtTeams.NewRow();
+            drNewTeamCT["name"] = demo.CTClanName.ToString();
+            this.dtTeams.Rows.Add(drNewTeamCT);
+            DataRow drNewTeamT = this.dtTeams.NewRow();
+            drNewTeamT["name"] = demo.TClanName;
+            this.dtTeams.Rows.Add(drNewTeamT);
+
+            //save the players to the database.
+            TableTeams clsTableTeams = new TableTeams(this.dbConnection);
+            clsTableTeams.saveTable(this.dtTeams);
+
+            foreach (DemoInfo.Player player in demo.PlayingParticipants)
+            {
+                //check if the player is a CT or T player.
+                if (player.Team == DemoInfo.Team.CounterTerrorist || player.Team == DemoInfo.Team.Terrorist )
                 {
-                    this.dtPlayers.Rows.Add(drNewPlayer);
-                }          
+                    //set the player information to a new row.
+                    DataRow drNewPlayer = this.dtPlayers.NewRow();
+                    drNewPlayer["steam_id"] = player.SteamID;
+                    drNewPlayer["name"] = player.Name.ToString();
+
+                    //check if the player doens't exists on the table.
+                    if (this.dtPlayers.Select("steam_id = " + player.SteamID).Length == 0)
+                    {
+                        this.dtPlayers.Rows.Add(drNewPlayer);
+                    }
+
+                    //set the player to the match and team.
+                    DataRow drMatchPlayer = this.dtMatchPlayers.NewRow();
+                    drMatchPlayer["match_id"] = this.drMatch["id"];
+                    drMatchPlayer["steam_id"] = player.SteamID;
+                    
+                    if (player.Team == DemoInfo.Team.Terrorist )
+                    {
+                        drMatchPlayer["team_id"] = this.dtTeams.Select("name = '" + demo.TClanName + "'")[0]["id"];
+                    }
+                    else
+                    {
+                        drMatchPlayer["team_id"] = this.dtTeams.Select("name = '" + demo.CTClanName + "'")[0]["id"];
+                    }
+
+                    this.dtMatchPlayers.Rows.Add(drMatchPlayer);
+                }
             }
         }
 
@@ -403,10 +441,18 @@ namespace clanify_analyzer_client
                 TablePlayers clsPlayers = new TablePlayers(this.dbConnection);
                 this.dtPlayers = clsPlayers.getTableSchema();
 
+                //init the tables for the team information.
+                TableTeams clsTeams = new TableTeams(this.dbConnection);
+                this.dtTeams = clsTeams.getTableSchema();
+
+                //init the tables for the match players information.
+                TableMatchPlayers clsMatchPlayers = new TableMatchPlayers(this.dbConnection);
+                this.dtMatchPlayers = clsMatchPlayers.getTableSchema();
+
                 //bind the main demo events to their handler.
                 demo.PlayerKilled += HandlePlayerKilled;
                 demo.PlayerHurt += HandlePlayerHurt;
-                demo.PlayerBind += HandlePlayerBind;
+                demo.RoundEnd += HandleRoundEnd;
                 
                 //now we can start parsing the whole demo.
                 demo.ParseToEnd();
@@ -453,6 +499,10 @@ namespace clanify_analyzer_client
             //save the players to the database.
             TablePlayers clsTablePlayers = new TablePlayers(this.dbConnection);
             clsTablePlayers.saveTable(this.dtPlayers);
+
+            //save the match players to the database.
+            TableMatchPlayers clsTableMatchPlayers = new TableMatchPlayers(this.dbConnection);
+            clsTableMatchPlayers.saveTable(this.dtMatchPlayers, (Int64) drMatch["id"]);
         }
 
         //event to open the settings.
