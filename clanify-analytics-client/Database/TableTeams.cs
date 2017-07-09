@@ -1,49 +1,61 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace clanify_analyzer_client.Database
 {
+    /// <summary>
+    /// The class to organize the table 'teams' on database.
+    /// </summary>
     class TableTeams
     {
-        //the property of the database connection.
+        /// <summary>
+        /// The database connection to work with the database.
+        /// </summary>
         private MySqlConnection dbConnection = null;
 
-        //constructor to initialize the object.
+        /// <summary>
+        /// Method to set the database connection to the object.
+        /// </summary>
+        /// <param name="dbConnection">The database connection to work with the database.</param>
         public TableTeams(MySqlConnection dbConnection)
         {
             this.dbConnection = dbConnection;
         }
 
-        //method to get a empty table for the damage.
+        /// <summary>
+        /// Method to get the table schema (DataTable) for the table 'teams'.
+        /// </summary>
+        /// <returns>The DataTable with the table schema of the table 'teams'.</returns>
         public DataTable getTableSchema()
         {
+            //create the DataTable with the table schemas.
             DataTable dtTeams = new DataTable("teams");
             dtTeams.Columns.Add(new DataColumn("id", System.Type.GetType("System.Int64")));
             dtTeams.Columns.Add(new DataColumn("name", System.Type.GetType("System.String")));
             return dtTeams;
         }
 
-        //function to check if the team already exists.
-        public Int64 existsTeam(string teamName)
+        /// <summary>
+        /// Method to get the ID of a existing team.
+        /// </summary>
+        /// <param name="teamName">The name of the team to get the ID if the team exists.</param>
+        /// <returns>The ID of the existing team or -1 if the team doesn't exists.</returns>
+        public Int64 getTeamID(string teamName)
         {
             try
             {
-                //create the select command to get the count of all found matches.
+                //create the select command to get the ID of the team if it exists.
                 string sqlSelect = "SELECT id FROM `teams` WHERE name = ?name";
 
-                //create the command and bind all the parameters to the query.
+                //bind all parameters to the statement and execute.
                 MySqlCommand cmdSelect = this.dbConnection.CreateCommand();
                 cmdSelect.CommandText = sqlSelect;
                 cmdSelect.Parameters.AddWithValue("?name", teamName);
                 object rtnValue = cmdSelect.ExecuteScalar();
 
-                //try to parse the return value of the query.
-                Int16 teamID = -1;
+                //reset the team ID to get the ID on the following steps.
+                Int64 teamID = -1;
 
                 //check if there is no result.
                 if (rtnValue == null)
@@ -51,13 +63,13 @@ namespace clanify_analyzer_client.Database
                     return teamID;
                 }
 
-                //check if the player is already available.
-                if (Int16.TryParse(rtnValue.ToString(), out teamID) == false)
+                //try to get the ID of the team.
+                if (Int64.TryParse(rtnValue.ToString(), out teamID) == false)
                 {
-                    return teamID;
+                    return -1;
                 }
 
-                //return the state if the match already exists.
+                //return the ID of the team or -1 if the team doesn't exists.
                 return teamID;
             }
             catch (Exception ex)
@@ -67,44 +79,50 @@ namespace clanify_analyzer_client.Database
             }
         }
 
-        //method to save the table with all players to the database.
+        /// <summary>
+        /// Method to save the table with all teams of the DataTable.
+        /// </summary>
+        /// <param name="dtTeams">The DataTable with all teams which will be saved.</param>
+        /// <returns>The DataTable with the teams (after INSERT with the ID).</returns>
         public DataTable saveTable(DataTable dtTeams)
         {
             try
             {
-                //open the connection to insert some data.
-                if (!(this.dbConnection.State == ConnectionState.Open))
+                //open the connection if the connection is not open at the moment.
+                if (this.dbConnection.State != ConnectionState.Open)
                 {
                     this.dbConnection.Open();
                 }
 
-                //run through all players to insert or update.
+                //run through all teams to INSERT them to database if not exists.
                 foreach (DataRow drTeam in dtTeams.Rows)
                 {
-                    //check if the player exists.
-                    Int64 teamID = existsTeam((string)drTeam["name"]);
+                    //try to get the ID of the team if the team already exists.
+                    Int64 teamID = getTeamID((string) drTeam["name"]);
 
+                    //check if a positive number is available (so the team exists).
                     if (teamID > 0)
                     {
+                        //set the available ID to the current row.
                         drTeam["id"] = teamID;
                     }
                     else
                     {
-                        //create the insert statement.
+                        //create the INSERT statement to create a new team.
                         string sqlInsertTeam = "INSERT INTO `teams` (id, name) VALUES (NULL, ?name);";
 
-                        //bind all the parameters to the statement.
+                        //bind all parameters to the statement and execute.
                         MySqlCommand cmdInsert = this.dbConnection.CreateCommand();
                         cmdInsert.CommandText = sqlInsertTeam;
                         cmdInsert.Parameters.AddWithValue("?name", drTeam["name"]);
                         cmdInsert.ExecuteNonQuery();
 
-                        //set the ID of the new row to the DataTable.
+                        //set the ID of the inserted team back to the DataTable.
                         drTeam["id"] = cmdInsert.LastInsertedId;
                     }
                 }
 
-                //return the state.
+                //return the DataTable with the teams and their ID.
                 return dtTeams;
             }
             catch (Exception e)
@@ -114,7 +132,11 @@ namespace clanify_analyzer_client.Database
             }
             finally
             {
-                this.dbConnection.Close();
+                //close the connection if the connection is open.
+                if (this.dbConnection.State == ConnectionState.Open)
+                {
+                    this.dbConnection.Close();
+                }
             }
         }
     }

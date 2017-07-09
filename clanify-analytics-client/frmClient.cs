@@ -453,7 +453,7 @@ namespace clanify_analyzer_client
                 demo.PlayerKilled += HandlePlayerKilled;
                 demo.PlayerHurt += HandlePlayerHurt;
                 demo.RoundEnd += HandleRoundEnd;
-                
+                                
                 //now we can start parsing the whole demo.
                 demo.ParseToEnd();
             }
