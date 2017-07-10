@@ -45,7 +45,7 @@ namespace clanify_analyzer_client.Database
         {
             try
             {
-                //create the select command to get the ID of the team if it exists.
+                //create the SELECT command to get the ID of the team if it exists.
                 string sqlSelect = "SELECT id FROM `teams` WHERE name = ?name";
 
                 //bind all parameters to the statement and execute.

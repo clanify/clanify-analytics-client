@@ -4,56 +4,72 @@ using System.Data;
 
 namespace clanify_analyzer_client.Database
 {
+    /// <summary>
+    /// The class to organize the table 'players' on database.
+    /// </summary>
     class TablePlayers
     {
-        //the property of the database connection.
+        /// <summary>
+        /// The database connection to work with the database.
+        /// </summary>
         private MySqlConnection dbConnection = null;
 
-        //constructor to initialize the object.
+        /// <summary>
+        /// Method to set the database connection to the object.
+        /// </summary>
+        /// <param name="dbConnection">The database connection to work with the database.</param>
         public TablePlayers(MySqlConnection dbConnection)
         {
             this.dbConnection = dbConnection;
         }
 
-        //method to get a empty table for the damage.
+        /// <summary>
+        /// Method to get the table schema (DataTable) for the table 'players'.
+        /// </summary>
+        /// <returns>The DataTable with the table schema of the table 'players'.</returns>
         public DataTable getTableSchema()
         {
+            //create the DataTable with the table schemas.
             DataTable dtPlayers = new DataTable("players");
             dtPlayers.Columns.Add(new DataColumn("steam_id", System.Type.GetType("System.Int64")));
             dtPlayers.Columns.Add(new DataColumn("name", System.Type.GetType("System.String")));
             return dtPlayers;
         }
-
-        //function to check if a match already exists.
+        
+        /// <summary>
+        /// Method to check if a player already exists on table 'players'.
+        /// </summary>
+        /// <param name="steamID">The steam ID of the player to check if the player exists.</param>
+        /// <returns>The state if the player exists or not.</returns>
         public bool existsPlayer(Int64 steamID)
         {
             try
             {
-                //create the select command to get the count of all found matches.
+                //create the SELECT command to get the count of the found players.
                 string sqlSelect = "SELECT COUNT(steam_id) FROM `players` WHERE steam_id = ?steam_id";
 
-                //create the command and bind all the parameters to the query.
+                //bind all parameters to the statement and execute.
                 MySqlCommand cmdSelect = this.dbConnection.CreateCommand();
                 cmdSelect.CommandText = sqlSelect;
                 cmdSelect.Parameters.AddWithValue("?steam_id", steamID);
                 object rtnValue = cmdSelect.ExecuteScalar();
 
-                //try to parse the return value of the query.
+                //reset the count to get the count on the following steps.
                 Int16 count = 0;
 
                 //check if there is no result.
                 if (rtnValue == null)
                 {
-                    return (count > 0);
+                    return false;
                 }
 
-                //check if the player is already available.
+                //try to get the count of the players.
                 if (Int16.TryParse(rtnValue.ToString(), out count) == false)
                 {
-                    count = 0;
+                    return false;
                 }
 
-                //return the state if the match already exists.
+                //return the state if the player exists or not.
                 return (count > 0);
             }
             catch (Exception ex)
@@ -62,28 +78,32 @@ namespace clanify_analyzer_client.Database
                 return false;
             }
         }
-
-        //method to save the table with all players to the database.
+        
+        /// <summary>
+        /// Method to save the table with all players of the DataTable.
+        /// </summary>
+        /// <param name="dtTeams">The DataTable with all players which will be saved.</param>
+        /// <returns>The state if the table was successfully saved.</returns>
         public bool saveTable(DataTable dtPlayers)
         {
             try
             {
-                //open the connection to insert some data.
-                if (!(this.dbConnection.State == ConnectionState.Open))
+                //open the connection if the connection is not open at the moment.
+                if (this.dbConnection.State != ConnectionState.Open)
                 {
                     this.dbConnection.Open();
                 }
-               
-                //run through all players to insert or update.
+
+                //run through all players to INSERT them to database if not exists.
                 foreach (DataRow drPlayer in dtPlayers.Rows)
                 {
-                    //check if the player exists.
+                    //check if the player already exists.
                     if (existsPlayer((Int64) drPlayer["steam_id"]) == false)
                     {
-                        //create the insert statement.
+                        //create the INSERT statement to create a new player.
                         string sqlInsertPlayer = "INSERT INTO `players` (steam_id, name) VALUES (?steam_id, ?name);";
 
-                        //bind all the parameters to the statement.
+                        //bind all parameters to the statement and execute.
                         MySqlCommand cmdInsert = this.dbConnection.CreateCommand();
                         cmdInsert.CommandText = sqlInsertPlayer;
                         cmdInsert.Parameters.AddWithValue("?steam_id", drPlayer["steam_id"]);
@@ -92,10 +112,10 @@ namespace clanify_analyzer_client.Database
                     }
                     else
                     {
-                        //create the update statement.
+                        //create the UPDATE statement to update a existing player.
                         string sqlUpdatePlayer = "UPDATE `players` SET name = ?name WHERE steam_id = ?steam_id";
 
-                        //bind all the parameters to the statement.
+                        //bind all parameters to the statement and execute.
                         MySqlCommand cmdUpdate = this.dbConnection.CreateCommand();
                         cmdUpdate.CommandText = sqlUpdatePlayer;
                         cmdUpdate.Parameters.AddWithValue("?steam_id", drPlayer["steam_id"]);
