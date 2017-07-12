@@ -6,3 +6,9 @@ importieren zu können. Die in dieser Datenbank gespeicherten Informationen könne
 dann verwendet werden um Statistiken und Analysen zu erstellen. Da das Auslesen 
 dieser Demo-Dateien einige Ressourcen in Anspruch nimmt, wurde der Import über 
 eine solche Anwendung gelöst.
+
+Aktuell wird nur eine Verbindung zu einer MySQL-Datenbank unterstützt. Das
+Script um die Tabellen in der Datenbank erstellen zu können, befindet sich [hier](https://github.com/clanify/clanify-analytics-sql/blob/master/database-tables.sql).
+
+Weitere Scripte / SQL-Abfragen um Informationen aus den Daten zu ermitteln, befinden sich
+im Projekt [clanify - Analytics SQL](https://github.com/clanify/clanify-analytics-sql).
