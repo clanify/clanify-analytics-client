@@ -384,6 +384,15 @@ namespace clanify_analyzer_client
             }
         }
 
+        //handler for the event if the match started.
+        private void HandleMatchStarted(object sender, DemoInfo.MatchStartedEventArgs e)
+        {
+            //reset the tables for frags and damage.
+            //HLTV demos has not match start event, the match starting directly with first tick.
+            this.dtDamage.Rows.Clear();
+            this.dtFrags.Rows.Clear();
+        }
+
         //click event to parse the demo to get all the information of the demo.
         private void btnReadDemoHeader_Click(object sender, EventArgs e)
         {
@@ -453,6 +462,7 @@ namespace clanify_analyzer_client
                 demo.PlayerKilled += HandlePlayerKilled;
                 demo.PlayerHurt += HandlePlayerHurt;
                 demo.RoundEnd += HandleRoundEnd;
+                demo.MatchStarted += HandleMatchStarted;
                                 
                 //now we can start parsing the whole demo.
                 demo.ParseToEnd();
