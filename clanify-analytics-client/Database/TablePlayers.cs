@@ -134,7 +134,11 @@ namespace clanify_analyzer_client.Database
             }
             finally
             {
-                this.dbConnection.Close();
+                //close the connection if the connection is open.
+                if (this.dbConnection.State == ConnectionState.Open)
+                {
+                    this.dbConnection.Close();
+                }
             }
         }
     }

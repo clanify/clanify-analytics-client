@@ -289,7 +289,7 @@ namespace clanify_analyzer_client
                     drNewPlayer["steam_id"] = player.SteamID;
                     drNewPlayer["name"] = player.Name.ToString();
 
-                    //check if the player doens't exists on the table.
+                    //check if the player doesn't exists on the table.
                     if (this.dtPlayers.Select("steam_id = " + player.SteamID).Length == 0)
                     {
                         this.dtPlayers.Rows.Add(drNewPlayer);
@@ -300,6 +300,7 @@ namespace clanify_analyzer_client
                     drMatchPlayer["match_id"] = this.drMatch["id"];
                     drMatchPlayer["steam_id"] = player.SteamID;
                     
+                    //get the team id of the player to create the relationship between the player and team.
                     if (player.Team == DemoInfo.Team.Terrorist )
                     {
                         drMatchPlayer["team_id"] = this.dtTeams.Select("name = '" + demo.TClanName + "'")[0]["id"];
@@ -309,6 +310,7 @@ namespace clanify_analyzer_client
                         drMatchPlayer["team_id"] = this.dtTeams.Select("name = '" + demo.CTClanName + "'")[0]["id"];
                     }
 
+                    //add the player to the table saving the relationship between match, team and player.
                     this.dtMatchPlayers.Rows.Add(drMatchPlayer);
                 }
             }
@@ -346,6 +348,16 @@ namespace clanify_analyzer_client
                 drNewDamage["attacker_position_y"] = e.Attacker.Position.Y;
                 drNewDamage["attacker_position_z"] = e.Attacker.Position.Z;
                 drNewDamage["attacker_hp"] = e.Attacker.HP;
+            }
+            else
+            {
+                //but we should know if the player hurt himself.
+                drNewDamage["attacker_steam_id"] = e.Player.SteamID;
+                drNewDamage["attacker_weapon"] = e.Weapon.Weapon;
+                drNewDamage["attacker_position_x"] = e.Player.Position.X;
+                drNewDamage["attacker_position_y"] = e.Player.Position.Y;
+                drNewDamage["attacker_position_z"] = e.Player.Position.Z;
+                drNewDamage["attacker_hp"] = e.Player.HP;
             }
             
             //set the new row to the table.
