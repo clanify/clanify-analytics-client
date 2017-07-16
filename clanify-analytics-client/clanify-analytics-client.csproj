@@ -57,6 +57,7 @@
     <Compile Include="Database\TablePlayers.cs" />
     <Compile Include="Database\TableMatchPlayers.cs" />
     <Compile Include="Database\TableTeams.cs" />
+    <Compile Include="Database\TableWeaponEvents.cs" />
     <Compile Include="frmClient.cs">
       <SubType>Form</SubType>
     </Compile>

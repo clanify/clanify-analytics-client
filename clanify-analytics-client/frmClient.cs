@@ -7,6 +7,8 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
+using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 
 namespace clanify_analyzer_client
 {
@@ -20,6 +22,7 @@ namespace clanify_analyzer_client
         private DataTable dtPlayers = null;
         private DataTable dtTeams = null;
         private DataTable dtMatchPlayers = null;
+        private DataTable dtWeaponEvents = null;
 
         public frmClient()
         {
@@ -403,6 +406,40 @@ namespace clanify_analyzer_client
             //HLTV demos has not match start event, the match starting directly with first tick.
             this.dtDamage.Rows.Clear();
             this.dtFrags.Rows.Clear();
+            this.dtWeaponEvents.Rows.Clear();
+        }
+
+        //handler for the event if a weapon is fired.
+        private void HandleWeaponFired(object sender, DemoInfo.WeaponFiredEventArgs e)
+        {
+            //get the demo information.
+            DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
+
+            //set the states which type of weapon is fired.
+            bool isHE = (e.Weapon.Weapon == DemoInfo.EquipmentElement.HE);
+            bool isFlash = (e.Weapon.Weapon == DemoInfo.EquipmentElement.Flash);
+            bool isDecoy = (e.Weapon.Weapon == DemoInfo.EquipmentElement.Decoy);
+            bool isIncendiary = (e.Weapon.Weapon == DemoInfo.EquipmentElement.Incendiary);
+            bool isMolotov = (e.Weapon.Weapon == DemoInfo.EquipmentElement.Molotov);
+            bool isSmoke = (e.Weapon.Weapon == DemoInfo.EquipmentElement.Smoke);
+
+            //actually we only want to know the "HE" events (later more).
+            if (isHE || isFlash || isDecoy || isIncendiary || isMolotov || isSmoke)
+            {
+                //set the information about the weapon event to a new row.
+                DataRow drNewWeaponEvent = this.dtWeaponEvents.NewRow();
+                drNewWeaponEvent["match_id"] = drMatch["id"];
+                drNewWeaponEvent["round"] = demo.TScore + demo.CTScore + 1;
+                drNewWeaponEvent["tick"] = demo.CurrentTick;
+                drNewWeaponEvent["shooter_steam_id"] = e.Shooter.SteamID;
+                drNewWeaponEvent["shooter_position_x"] = e.Shooter.Position.X;
+                drNewWeaponEvent["shooter_position_y"] = e.Shooter.Position.Y;
+                drNewWeaponEvent["shooter_position_z"] = e.Shooter.Position.Z;
+                drNewWeaponEvent["shooter_weapon"] = e.Weapon.Weapon;
+
+                //set the new row to the table.
+                this.dtWeaponEvents.Rows.Add(drNewWeaponEvent);
+            }
         }
 
         //click event to parse the demo to get all the information of the demo.
@@ -446,27 +483,37 @@ namespace clanify_analyzer_client
                 drNewMatch["server_name"] = txtHeaderServerName.Text.ToString();
                 drNewMatch["signon_length"] = txtHeaderSignonLength.Text.ToString();
 
+                //create the checksum of the file and set to the new row.
+                MD5 md5 = MD5.Create();
+                Stream demoStream = File.OpenRead(txtSelectDemo.Text);
+                Regex notAlpha = new Regex("[^a-zA-Z0-9]");
+                drNewMatch["file_checksum"] = notAlpha.Replace(BitConverter.ToString(md5.ComputeHash(demoStream)).Replace("-", "‌​").ToLower(), ""); 
+
                 //save the information to the database.
                 drNewMatch = clsTableMatch.saveRowMatch(drNewMatch);
                 this.drMatch = drNewMatch;
 
-                //init the tables for the frags information.
+                //init the table for the frags information.
                 TableFrags clsFrags = new TableFrags(this.dbConnection);
                 this.dtFrags = clsFrags.getTableSchema();
 
-                //init the tables for the damage information.
+                //init the table for the damage information.
                 TableDamage clsDamage = new TableDamage(this.dbConnection);
                 this.dtDamage = clsDamage.getTableSchema();
 
-                //init the tables for the player information.
+                //init the table for the weapon events.
+                TableWeaponEvents clsWeaponEvents = new TableWeaponEvents(this.dbConnection);
+                this.dtWeaponEvents = clsWeaponEvents.getTableSchema();
+
+                //init the table for the player information.
                 TablePlayers clsPlayers = new TablePlayers(this.dbConnection);
                 this.dtPlayers = clsPlayers.getTableSchema();
 
-                //init the tables for the team information.
+                //init the table for the team information.
                 TableTeams clsTeams = new TableTeams(this.dbConnection);
                 this.dtTeams = clsTeams.getTableSchema();
 
-                //init the tables for the match players information.
+                //init the table for the match players information.
                 TableMatchPlayers clsMatchPlayers = new TableMatchPlayers(this.dbConnection);
                 this.dtMatchPlayers = clsMatchPlayers.getTableSchema();
 
@@ -475,7 +522,8 @@ namespace clanify_analyzer_client
                 demo.PlayerHurt += HandlePlayerHurt;
                 demo.RoundEnd += HandleRoundEnd;
                 demo.MatchStarted += HandleMatchStarted;
-                                
+                demo.WeaponFired += HandleWeaponFired;
+
                 //now we can start parsing the whole demo.
                 demo.ParseToEnd();
             }
@@ -517,6 +565,10 @@ namespace clanify_analyzer_client
             //save the damage to the database.
             TableDamage clsTableDamage = new TableDamage(this.dbConnection);
             clsTableDamage.saveTable(this.dtDamage, (Int64) drMatch["id"]);
+
+            //save the weapon events to the database.
+            TableWeaponEvents clsTableWeaponEvents = new TableWeaponEvents(this.dbConnection);
+            clsTableWeaponEvents.saveTable(this.dtWeaponEvents, (Int64) drMatch["id"]);
 
             //save the players to the database.
             TablePlayers clsTablePlayers = new TablePlayers(this.dbConnection);

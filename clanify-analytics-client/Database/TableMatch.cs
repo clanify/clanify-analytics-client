@@ -33,6 +33,7 @@ namespace clanify_analyzer_client.Database
             dtMatch.Columns.Add(new DataColumn("protocol", System.Type.GetType("System.Int16")));
             dtMatch.Columns.Add(new DataColumn("server_name", System.Type.GetType("System.String")));
             dtMatch.Columns.Add(new DataColumn("signon_length", System.Type.GetType("System.Int32")));
+            dtMatch.Columns.Add(new DataColumn("file_checksum", System.Type.GetType("System.String")));
             return dtMatch;
         }
 
@@ -54,7 +55,7 @@ namespace clanify_analyzer_client.Database
                     string sqlUpdateMatch = "UPDATE `match` SET client_name = ?client_name, filestamp = ?filestamp, game_directory = ?game_directory, " +
                         "network_protocol = ?network_protocol, playback_frames = ?playback_frames, playback_ticks = ?playback_ticks, " +
                         "playback_time = ?playback_time, protocol = ?protocol, server_name = ?server_name, signon_length = ?signon_length " +
-                        "WHERE id = " + matchID;
+                        "file_checksum = ?file_checksum WHERE id = " + matchID;
 
                     //bind all the parameters to the statement.
                     MySqlCommand cmdUpdate = this.dbConnection.CreateCommand();
@@ -69,6 +70,7 @@ namespace clanify_analyzer_client.Database
                     cmdUpdate.Parameters.AddWithValue("?protocol", drMatch["protocol"]);
                     cmdUpdate.Parameters.AddWithValue("?server_name", drMatch["server_name"]);
                     cmdUpdate.Parameters.AddWithValue("?signon_length", drMatch["signon_length"]);
+                    cmdUpdate.Parameters.AddWithValue("?file_checksum", drMatch["file_checksum"]);
                     cmdUpdate.ExecuteNonQuery();
 
                     //set the ID to the row.
@@ -78,9 +80,9 @@ namespace clanify_analyzer_client.Database
                 {
                     //create the insert statement.
                     string sqlInsertMatch = "INSERT INTO `match` (id, event_id, match_start, client_name, filestamp, game_directory, map_name, network_protocol, " +
-                        "playback_frames, playback_ticks, playback_time, protocol, server_name, signon_length) VALUES (NULL, ?event_id, ?match_start, " +
+                        "playback_frames, playback_ticks, playback_time, protocol, server_name, signon_length, file_checksum) VALUES (NULL, ?event_id, ?match_start, " +
                         "?client_name, ?filestamp, ?game_directory, ?map_name, ?network_protocol, ?playback_frames, ?playback_ticks, ?playback_time, " +
-                        "?protocol, ?server_name, ?signon_length);";
+                        "?protocol, ?server_name, ?signon_length, ?file_checksum);";
 
                     //bind all the parameters to the statement.
                     MySqlCommand cmdInsert = this.dbConnection.CreateCommand();
@@ -98,6 +100,7 @@ namespace clanify_analyzer_client.Database
                     cmdInsert.Parameters.AddWithValue("?protocol", drMatch["protocol"]);
                     cmdInsert.Parameters.AddWithValue("?server_name", drMatch["server_name"]);
                     cmdInsert.Parameters.AddWithValue("?signon_length", drMatch["signon_length"]);
+                    cmdInsert.Parameters.AddWithValue("?file_checksum", drMatch["file_checksum"]);
                     cmdInsert.ExecuteNonQuery();
 
                     //insert the id back to the row.
@@ -107,8 +110,9 @@ namespace clanify_analyzer_client.Database
                 //return the row (on insert now with ID).
                 return drMatch;
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
+                Console.WriteLine(e.ToString());
                 return null;
             }
             finally
