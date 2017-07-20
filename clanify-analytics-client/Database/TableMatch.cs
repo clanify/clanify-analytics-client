@@ -54,7 +54,7 @@ namespace clanify_analyzer_client.Database
                     //create the update statement.
                     string sqlUpdateMatch = "UPDATE `match` SET client_name = ?client_name, filestamp = ?filestamp, game_directory = ?game_directory, " +
                         "network_protocol = ?network_protocol, playback_frames = ?playback_frames, playback_ticks = ?playback_ticks, " +
-                        "playback_time = ?playback_time, protocol = ?protocol, server_name = ?server_name, signon_length = ?signon_length " +
+                        "playback_time = ?playback_time, protocol = ?protocol, server_name = ?server_name, signon_length = ?signon_length, " +
                         "file_checksum = ?file_checksum WHERE id = " + matchID;
 
                     //bind all the parameters to the statement.
