@@ -457,6 +457,13 @@ namespace clanify_analyzer_client
                 //parse the header of the demo to get the common information.
                 demo.ParseHeader();
 
+                //check if the demo is valid and available.
+                if (demo.Header.PlaybackTicks < 1)
+                {
+                    MessageBox.Show("The demo isn't valid or couldn't be parsed!", "clanify - Analytics Client", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
                 //get the emtpy datatable to save the match information.
                 TableMatch clsTableMatch = new TableMatch(this.dbConnection);
                 DataTable dtMatch = clsTableMatch.getTableSchema();
@@ -482,7 +489,7 @@ namespace clanify_analyzer_client
                 drNewMatch["protocol"] = txtHeaderProtocol.Text.ToString();
                 drNewMatch["server_name"] = txtHeaderServerName.Text.ToString();
                 drNewMatch["signon_length"] = txtHeaderSignonLength.Text.ToString();
-
+                
                 //create the checksum of the file and set to the new row.
                 MD5 md5 = MD5.Create();
                 Stream demoStream = File.OpenRead(txtSelectDemo.Text);
@@ -524,8 +531,19 @@ namespace clanify_analyzer_client
                 demo.MatchStarted += HandleMatchStarted;
                 demo.WeaponFired += HandleWeaponFired;
 
+                //init the progressbar to show the current state.
+                pbDemoProgress.Minimum = 0;
+                pbDemoProgress.Maximum = demo.Header.PlaybackTicks;
+                pbDemoProgress.Value = 0;
+
                 //now we can start parsing the whole demo.
-                demo.ParseToEnd();
+                while (demo.ParseNextTick())
+                {
+                    pbDemoProgress.Value += 1;
+                }
+
+                //the file was parsed to the end, show some feedback.
+                MessageBox.Show("The demo was parsed.", "clanify - Analytics Client", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {

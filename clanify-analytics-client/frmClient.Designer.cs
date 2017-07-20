@@ -68,6 +68,7 @@
             this.btnSettings = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tslblConnState = new System.Windows.Forms.ToolStripStatusLabel();
+            this.pbDemoProgress = new System.Windows.Forms.ProgressBar();
             this.tcMain.SuspendLayout();
             this.tabDemoInfo.SuspendLayout();
             this.tabDemoHeader.SuspendLayout();
@@ -136,7 +137,7 @@
             // 
             // btnReadDemoHeader
             // 
-            this.btnReadDemoHeader.Location = new System.Drawing.Point(12, 253);
+            this.btnReadDemoHeader.Location = new System.Drawing.Point(12, 269);
             this.btnReadDemoHeader.Name = "btnReadDemoHeader";
             this.btnReadDemoHeader.Size = new System.Drawing.Size(75, 23);
             this.btnReadDemoHeader.TabIndex = 3;
@@ -166,7 +167,7 @@
             // 
             this.tcMain.Controls.Add(this.tabDemoInfo);
             this.tcMain.Controls.Add(this.tabDemoHeader);
-            this.tcMain.Location = new System.Drawing.Point(12, 38);
+            this.tcMain.Location = new System.Drawing.Point(12, 54);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
             this.tcMain.Size = new System.Drawing.Size(465, 213);
@@ -440,7 +441,7 @@
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(93, 253);
+            this.btnSave.Location = new System.Drawing.Point(93, 269);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 5;
@@ -450,7 +451,7 @@
             // 
             // btnSettings
             // 
-            this.btnSettings.Location = new System.Drawing.Point(392, 253);
+            this.btnSettings.Location = new System.Drawing.Point(392, 269);
             this.btnSettings.Name = "btnSettings";
             this.btnSettings.Size = new System.Drawing.Size(85, 23);
             this.btnSettings.TabIndex = 6;
@@ -462,7 +463,7 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tslblConnState});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 285);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 297);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(489, 22);
             this.statusStrip1.TabIndex = 7;
@@ -473,11 +474,20 @@
             this.tslblConnState.Name = "tslblConnState";
             this.tslblConnState.Size = new System.Drawing.Size(0, 17);
             // 
+            // pbDemoProgress
+            // 
+            this.pbDemoProgress.Location = new System.Drawing.Point(12, 38);
+            this.pbDemoProgress.Name = "pbDemoProgress";
+            this.pbDemoProgress.Size = new System.Drawing.Size(465, 10);
+            this.pbDemoProgress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.pbDemoProgress.TabIndex = 8;
+            // 
             // frmClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(489, 307);
+            this.ClientSize = new System.Drawing.Size(489, 319);
+            this.Controls.Add(this.pbDemoProgress);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.btnSettings);
             this.Controls.Add(this.btnSave);
@@ -544,6 +554,7 @@
         private System.Windows.Forms.Button btnSettings;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel tslblConnState;
+        private System.Windows.Forms.ProgressBar pbDemoProgress;
     }
 }
 
