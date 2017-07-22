@@ -31,6 +31,8 @@
             this.txtDatabaseServer = new System.Windows.Forms.TextBox();
             this.lblDatabaseServer = new System.Windows.Forms.Label();
             this.grpDatabaseSettings = new System.Windows.Forms.GroupBox();
+            this.lblDatabaseName = new System.Windows.Forms.Label();
+            this.txtDatabaseName = new System.Windows.Forms.TextBox();
             this.lblDatabasePassword = new System.Windows.Forms.Label();
             this.txtDatabasePassword = new System.Windows.Forms.TextBox();
             this.lblDatabaseUsername = new System.Windows.Forms.Label();
@@ -38,8 +40,6 @@
             this.lblDatabasePort = new System.Windows.Forms.Label();
             this.txtDatabasePort = new System.Windows.Forms.TextBox();
             this.btnSaveSettings = new System.Windows.Forms.Button();
-            this.txtDatabaseName = new System.Windows.Forms.TextBox();
-            this.lblDatabaseName = new System.Windows.Forms.Label();
             this.grpDatabaseSettings.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -77,6 +77,22 @@
             this.grpDatabaseSettings.TabIndex = 2;
             this.grpDatabaseSettings.TabStop = false;
             this.grpDatabaseSettings.Text = "Datenbank";
+            // 
+            // lblDatabaseName
+            // 
+            this.lblDatabaseName.AutoSize = true;
+            this.lblDatabaseName.Location = new System.Drawing.Point(6, 133);
+            this.lblDatabaseName.Name = "lblDatabaseName";
+            this.lblDatabaseName.Size = new System.Drawing.Size(91, 13);
+            this.lblDatabaseName.TabIndex = 9;
+            this.lblDatabaseName.Text = "Datenbank Name";
+            // 
+            // txtDatabaseName
+            // 
+            this.txtDatabaseName.Location = new System.Drawing.Point(103, 130);
+            this.txtDatabaseName.Name = "txtDatabaseName";
+            this.txtDatabaseName.Size = new System.Drawing.Size(112, 20);
+            this.txtDatabaseName.TabIndex = 8;
             // 
             // lblDatabasePassword
             // 
@@ -136,22 +152,6 @@
             this.btnSaveSettings.Text = "Speichern";
             this.btnSaveSettings.UseVisualStyleBackColor = true;
             this.btnSaveSettings.Click += new System.EventHandler(this.btnSaveSettings_Click);
-            // 
-            // txtDatabaseName
-            // 
-            this.txtDatabaseName.Location = new System.Drawing.Point(103, 130);
-            this.txtDatabaseName.Name = "txtDatabaseName";
-            this.txtDatabaseName.Size = new System.Drawing.Size(112, 20);
-            this.txtDatabaseName.TabIndex = 8;
-            // 
-            // lblDatabaseName
-            // 
-            this.lblDatabaseName.AutoSize = true;
-            this.lblDatabaseName.Location = new System.Drawing.Point(6, 133);
-            this.lblDatabaseName.Name = "lblDatabaseName";
-            this.lblDatabaseName.Size = new System.Drawing.Size(91, 13);
-            this.lblDatabaseName.TabIndex = 9;
-            this.lblDatabaseName.Text = "Datenbank Name";
             // 
             // frmSettings
             // 

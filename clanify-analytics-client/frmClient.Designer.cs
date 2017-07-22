@@ -34,7 +34,6 @@
             this.cmbInfoEventName = new System.Windows.Forms.ComboBox();
             this.lblInfoMatchDate = new System.Windows.Forms.Label();
             this.dtpInfoMatchDate = new System.Windows.Forms.DateTimePicker();
-            this.btnReadDemoHeader = new System.Windows.Forms.Button();
             this.cmbInfoMapName = new System.Windows.Forms.ComboBox();
             this.lblInfoMapName = new System.Windows.Forms.Label();
             this.tcMain = new System.Windows.Forms.TabControl();
@@ -64,12 +63,13 @@
             this.txtHeaderPlaybackFrames = new System.Windows.Forms.TextBox();
             this.lblHeaderNetworkProtocol = new System.Windows.Forms.Label();
             this.txtHeaderNetworkProtocol = new System.Windows.Forms.TextBox();
-            this.btnSave = new System.Windows.Forms.Button();
-            this.btnSettings = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tslblConnState = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblLoadedInfo = new System.Windows.Forms.Label();
             this.lblSavedInfo = new System.Windows.Forms.Label();
+            this.btnSettings = new System.Windows.Forms.Button();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.btnReadDemoHeader = new System.Windows.Forms.Button();
             this.tcMain.SuspendLayout();
             this.tabDemoInfo.SuspendLayout();
             this.tabDemoHeader.SuspendLayout();
@@ -135,16 +135,6 @@
             this.dtpInfoMatchDate.Size = new System.Drawing.Size(97, 20);
             this.dtpInfoMatchDate.TabIndex = 0;
             this.dtpInfoMatchDate.Value = new System.DateTime(2017, 7, 5, 0, 0, 0, 0);
-            // 
-            // btnReadDemoHeader
-            // 
-            this.btnReadDemoHeader.Location = new System.Drawing.Point(12, 273);
-            this.btnReadDemoHeader.Name = "btnReadDemoHeader";
-            this.btnReadDemoHeader.Size = new System.Drawing.Size(75, 23);
-            this.btnReadDemoHeader.TabIndex = 3;
-            this.btnReadDemoHeader.Text = "Info";
-            this.btnReadDemoHeader.UseVisualStyleBackColor = true;
-            this.btnReadDemoHeader.Click += new System.EventHandler(this.btnReadDemoHeader_Click);
             // 
             // cmbInfoMapName
             // 
@@ -237,7 +227,7 @@
             this.tabDemoHeader.Location = new System.Drawing.Point(4, 22);
             this.tabDemoHeader.Name = "tabDemoHeader";
             this.tabDemoHeader.Padding = new System.Windows.Forms.Padding(3);
-            this.tabDemoHeader.Size = new System.Drawing.Size(457, 203);
+            this.tabDemoHeader.Size = new System.Drawing.Size(457, 202);
             this.tabDemoHeader.TabIndex = 1;
             this.tabDemoHeader.Text = "Header";
             this.tabDemoHeader.UseVisualStyleBackColor = true;
@@ -440,31 +430,11 @@
             this.txtHeaderNetworkProtocol.Size = new System.Drawing.Size(110, 20);
             this.txtHeaderNetworkProtocol.TabIndex = 14;
             // 
-            // btnSave
-            // 
-            this.btnSave.Location = new System.Drawing.Point(93, 273);
-            this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(75, 23);
-            this.btnSave.TabIndex = 5;
-            this.btnSave.Text = "Speichern";
-            this.btnSave.UseVisualStyleBackColor = true;
-            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
-            // 
-            // btnSettings
-            // 
-            this.btnSettings.Location = new System.Drawing.Point(392, 273);
-            this.btnSettings.Name = "btnSettings";
-            this.btnSettings.Size = new System.Drawing.Size(85, 23);
-            this.btnSettings.TabIndex = 6;
-            this.btnSettings.Text = "Einstellungen";
-            this.btnSettings.UseVisualStyleBackColor = true;
-            this.btnSettings.Click += new System.EventHandler(this.btnSettings_Click);
-            // 
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tslblConnState});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 301);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 295);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(489, 22);
             this.statusStrip1.TabIndex = 7;
@@ -493,11 +463,50 @@
             this.lblSavedInfo.TabIndex = 9;
             this.lblSavedInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // btnSettings
+            // 
+            this.btnSettings.Image = global::clanify_analyzer_client.Properties.Resources.icon_settings;
+            this.btnSettings.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnSettings.Location = new System.Drawing.Point(381, 269);
+            this.btnSettings.Name = "btnSettings";
+            this.btnSettings.Size = new System.Drawing.Size(96, 23);
+            this.btnSettings.TabIndex = 6;
+            this.btnSettings.Text = "Einstellungen";
+            this.btnSettings.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnSettings.UseVisualStyleBackColor = true;
+            this.btnSettings.Click += new System.EventHandler(this.btnSettings_Click);
+            // 
+            // btnSave
+            // 
+            this.btnSave.Image = global::clanify_analyzer_client.Properties.Resources.icon_save;
+            this.btnSave.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnSave.Location = new System.Drawing.Point(71, 269);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(79, 23);
+            this.btnSave.TabIndex = 5;
+            this.btnSave.Text = "Speichern";
+            this.btnSave.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            // 
+            // btnReadDemoHeader
+            // 
+            this.btnReadDemoHeader.Image = global::clanify_analyzer_client.Properties.Resources.icon_info;
+            this.btnReadDemoHeader.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnReadDemoHeader.Location = new System.Drawing.Point(12, 269);
+            this.btnReadDemoHeader.Name = "btnReadDemoHeader";
+            this.btnReadDemoHeader.Size = new System.Drawing.Size(53, 23);
+            this.btnReadDemoHeader.TabIndex = 3;
+            this.btnReadDemoHeader.Text = "Info";
+            this.btnReadDemoHeader.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnReadDemoHeader.UseVisualStyleBackColor = true;
+            this.btnReadDemoHeader.Click += new System.EventHandler(this.btnReadDemoHeader_Click);
+            // 
             // frmClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(489, 323);
+            this.ClientSize = new System.Drawing.Size(489, 317);
             this.Controls.Add(this.lblSavedInfo);
             this.Controls.Add(this.lblLoadedInfo);
             this.Controls.Add(this.statusStrip1);
