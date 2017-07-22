@@ -14,8 +14,14 @@ namespace clanify_analyzer_client
 {
     public partial class frmClient : Form
     {
+        /// <summary>
+        /// The database connection to work with the database.
+        /// </summary>
         private MySqlConnection dbConnection = null;
 
+        /// <summary>
+        /// some tables and rows to store the data of the demo file.
+        /// </summary>
         private DataRow drMatch = null;
         private DataTable dtFrags = null;
         private DataTable dtDamage = null;
@@ -147,6 +153,9 @@ namespace clanify_analyzer_client
             if (dlgDemoFile.ShowDialog() == DialogResult.OK )
             {
                 txtSelectDemo.Text = dlgDemoFile.FileName;
+                lblLoadedInfo.BackColor = ControlPaint.Light(Color.Red);
+                lblSavedInfo.BackColor = ControlPaint.Light(Color.Red);
+                btnSave.Enabled = false;
             }
             else
             {
@@ -157,27 +166,64 @@ namespace clanify_analyzer_client
         //function to fill the combobox with all the available events.
         private void fillCmbEventName()
         {
-            //create a list with all supported events.
-            Dictionary<int, string> eventList = new Dictionary<int, string>();
-            eventList.Add(1, "ESL One Cologne 2017");
-            eventList.Add(2, "ESL One New York 2016");
-            eventList.Add(3, "PGL Major Krakow 2017");
-
             //clear the list of events to initialize.
             cmbInfoEventName.Items.Clear();
 
             //init a empty list for all combobox items.
             List<ComboBoxItem> items = new List<ComboBoxItem>();
 
-            //run through all events to initialize the list of events.
-            foreach (KeyValuePair<int, string> eventListItem in eventList )
+            //check if a database connection is available.
+            if (this.dbConnection != null)
             {
-                ComboBoxItem cItem = new ComboBoxItem();
-                cItem.Text = eventListItem.Value;
-                cItem.Value = eventListItem.Key;
-                items.Add(cItem);
-            }
+                //check if the database connection is open.
+                if (this.dbConnection.State != ConnectionState.Open )
+                {
+                    this.dbConnection.Open();
+                }
 
+                //create the SELECT command to get the events from database.
+                string sqlSelect = "SELECT id, name FROM `events` ORDER BY name";
+
+                //bind all parameters to the statement and execute.
+                MySqlCommand cmdSelect = this.dbConnection.CreateCommand();
+                cmdSelect.CommandText = sqlSelect;
+                MySqlDataReader reader = cmdSelect.ExecuteReader();
+
+                //initialize the list with all supported events.
+                Dictionary<int, string> eventList = new Dictionary<int, string>();
+
+                //read all the events from the database.
+                while (reader.Read())
+                {
+                    //get the ID and name of the event.
+                    int id = Convert.ToInt32(reader["id"]);
+                    string name = Convert.ToString(reader["name"]);
+
+                    //add the id and name of the event to the list.
+                    eventList.Add(id, name);
+                }
+
+                //close the database reader and connection again.
+                reader.Close();
+                reader.Dispose();
+                reader = null;
+
+                //close the connection again.
+                if (this.dbConnection.State == ConnectionState.Open )
+                {
+                    this.dbConnection.Close();
+                }
+
+                //run through all events to initialize the list of events.
+                foreach (KeyValuePair<int, string> eventListItem in eventList)
+                {
+                    ComboBoxItem cItem = new ComboBoxItem();
+                    cItem.Text = eventListItem.Value;
+                    cItem.Value = eventListItem.Key;
+                    items.Add(cItem);
+                }
+            }
+            
             //set the list as datasource.
             cmbInfoEventName.DataSource = items;
             cmbInfoEventName.DisplayMember = "Text";
@@ -242,14 +288,19 @@ namespace clanify_analyzer_client
             drNewFrag["victim_position_y"] = e.Victim.Position.Y;
             drNewFrag["victim_position_z"] = e.Victim.Position.Z;
             drNewFrag["victim_hp"] = e.Victim.HP;
-            drNewFrag["killer_steam_id"] = e.Killer.SteamID;
             drNewFrag["killer_weapon"] = e.Weapon.Weapon;
-            drNewFrag["killer_position_x"] = e.Killer.Position.X;
-            drNewFrag["killer_position_y"] = e.Killer.Position.Y;
-            drNewFrag["killer_position_z"] = e.Killer.Position.Z;
-            drNewFrag["killer_hp"] = e.Killer.HP;
-            drNewFrag["is_headshot"] = e.Headshot;
 
+            //check if a killer is available (some players jumps to deep or can't handle weapons :D).
+            if (e.Killer != null)
+            {
+                drNewFrag["killer_steam_id"] = e.Killer.SteamID;            
+                drNewFrag["killer_position_x"] = e.Killer.Position.X;
+                drNewFrag["killer_position_y"] = e.Killer.Position.Y;
+                drNewFrag["killer_position_z"] = e.Killer.Position.Z;
+                drNewFrag["killer_hp"] = e.Killer.HP;
+                drNewFrag["is_headshot"] = e.Headshot;
+            }
+            
             //check if a assister is available.
             if (e.Assister != null)
             {
@@ -577,7 +628,8 @@ namespace clanify_analyzer_client
                 demoFileStream = null;
 
                 //the file was parsed to the end, show some feedback.
-                MessageBox.Show("The demo was parsed.", "clanify - Analytics Client", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                lblLoadedInfo.BackColor = ControlPaint.Light(Color.Green);
+                btnSave.Enabled = true;
             }
             else
             {
@@ -589,6 +641,17 @@ namespace clanify_analyzer_client
         //load event to load the controls of the form.
         private void frmClient_Load(object sender, EventArgs e)
         {
+            //init the state for loading and saving the data.
+            lblLoadedInfo.BackColor = ControlPaint.Light(Color.Red);
+            lblSavedInfo.BackColor = ControlPaint.Light(Color.Red);
+            btnSave.Enabled = false;
+
+            //init the database connection.
+            this.initDatabaseConnection();
+
+            //check and show the connection state.
+            checkConnectionDB();
+
             //initialize the list of events and maps.
             this.fillCmbEventName();
             this.fillCmbMapName();
@@ -599,12 +662,6 @@ namespace clanify_analyzer_client
             //initialize the date and time picker.
             dtpInfoMatchDate.Value = currentDateTime;
             dtpInfoMatchTime.Value = currentDateTime;
-
-            //init the database connection.
-            this.initDatabaseConnection();
-
-            //check and show the connection state.
-            checkConnectionDB();
         }
 
         //event to save the match information in database.
@@ -629,6 +686,9 @@ namespace clanify_analyzer_client
             //save the match players to the database.
             TableMatchPlayers clsTableMatchPlayers = new TableMatchPlayers(this.dbConnection);
             clsTableMatchPlayers.saveTable(this.dtMatchPlayers, (Int64) drMatch["id"]);
+
+            //set the feedback for the user.
+            lblSavedInfo.BackColor = ControlPaint.Light(Color.Green);
         }
 
         //event to open the settings.

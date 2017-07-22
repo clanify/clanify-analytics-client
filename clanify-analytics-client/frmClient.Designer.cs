@@ -68,6 +68,8 @@
             this.btnSettings = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tslblConnState = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblLoadedInfo = new System.Windows.Forms.Label();
+            this.lblSavedInfo = new System.Windows.Forms.Label();
             this.tcMain.SuspendLayout();
             this.tabDemoInfo.SuspendLayout();
             this.tabDemoHeader.SuspendLayout();
@@ -80,14 +82,14 @@
             this.txtSelectDemo.Location = new System.Drawing.Point(12, 12);
             this.txtSelectDemo.Name = "txtSelectDemo";
             this.txtSelectDemo.ReadOnly = true;
-            this.txtSelectDemo.Size = new System.Drawing.Size(391, 20);
+            this.txtSelectDemo.Size = new System.Drawing.Size(379, 20);
             this.txtSelectDemo.TabIndex = 0;
             // 
             // btnSelectDemo
             // 
-            this.btnSelectDemo.Location = new System.Drawing.Point(409, 10);
+            this.btnSelectDemo.Location = new System.Drawing.Point(397, 10);
             this.btnSelectDemo.Name = "btnSelectDemo";
-            this.btnSelectDemo.Size = new System.Drawing.Size(68, 23);
+            this.btnSelectDemo.Size = new System.Drawing.Size(80, 23);
             this.btnSelectDemo.TabIndex = 1;
             this.btnSelectDemo.Text = "Demo...";
             this.btnSelectDemo.UseVisualStyleBackColor = true;
@@ -136,7 +138,7 @@
             // 
             // btnReadDemoHeader
             // 
-            this.btnReadDemoHeader.Location = new System.Drawing.Point(12, 269);
+            this.btnReadDemoHeader.Location = new System.Drawing.Point(12, 273);
             this.btnReadDemoHeader.Name = "btnReadDemoHeader";
             this.btnReadDemoHeader.Size = new System.Drawing.Size(75, 23);
             this.btnReadDemoHeader.TabIndex = 3;
@@ -166,10 +168,10 @@
             // 
             this.tcMain.Controls.Add(this.tabDemoInfo);
             this.tcMain.Controls.Add(this.tabDemoHeader);
-            this.tcMain.Location = new System.Drawing.Point(12, 38);
+            this.tcMain.Location = new System.Drawing.Point(12, 39);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(465, 229);
+            this.tcMain.Size = new System.Drawing.Size(465, 228);
             this.tcMain.TabIndex = 4;
             // 
             // tabDemoInfo
@@ -185,7 +187,7 @@
             this.tabDemoInfo.Location = new System.Drawing.Point(4, 22);
             this.tabDemoInfo.Name = "tabDemoInfo";
             this.tabDemoInfo.Padding = new System.Windows.Forms.Padding(3);
-            this.tabDemoInfo.Size = new System.Drawing.Size(457, 203);
+            this.tabDemoInfo.Size = new System.Drawing.Size(457, 202);
             this.tabDemoInfo.TabIndex = 0;
             this.tabDemoInfo.Text = "Info";
             this.tabDemoInfo.UseVisualStyleBackColor = true;
@@ -235,7 +237,7 @@
             this.tabDemoHeader.Location = new System.Drawing.Point(4, 22);
             this.tabDemoHeader.Name = "tabDemoHeader";
             this.tabDemoHeader.Padding = new System.Windows.Forms.Padding(3);
-            this.tabDemoHeader.Size = new System.Drawing.Size(457, 187);
+            this.tabDemoHeader.Size = new System.Drawing.Size(457, 203);
             this.tabDemoHeader.TabIndex = 1;
             this.tabDemoHeader.Text = "Header";
             this.tabDemoHeader.UseVisualStyleBackColor = true;
@@ -440,7 +442,7 @@
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(93, 269);
+            this.btnSave.Location = new System.Drawing.Point(93, 273);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 5;
@@ -450,7 +452,7 @@
             // 
             // btnSettings
             // 
-            this.btnSettings.Location = new System.Drawing.Point(392, 269);
+            this.btnSettings.Location = new System.Drawing.Point(392, 273);
             this.btnSettings.Name = "btnSettings";
             this.btnSettings.Size = new System.Drawing.Size(85, 23);
             this.btnSettings.TabIndex = 6;
@@ -462,7 +464,7 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tslblConnState});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 297);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 301);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(489, 22);
             this.statusStrip1.TabIndex = 7;
@@ -473,11 +475,31 @@
             this.tslblConnState.Name = "tslblConnState";
             this.tslblConnState.Size = new System.Drawing.Size(0, 17);
             // 
+            // lblLoadedInfo
+            // 
+            this.lblLoadedInfo.BackColor = System.Drawing.Color.Green;
+            this.lblLoadedInfo.Location = new System.Drawing.Point(397, 35);
+            this.lblLoadedInfo.Name = "lblLoadedInfo";
+            this.lblLoadedInfo.Size = new System.Drawing.Size(40, 20);
+            this.lblLoadedInfo.TabIndex = 8;
+            this.lblLoadedInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblSavedInfo
+            // 
+            this.lblSavedInfo.BackColor = System.Drawing.Color.Red;
+            this.lblSavedInfo.Location = new System.Drawing.Point(437, 35);
+            this.lblSavedInfo.Name = "lblSavedInfo";
+            this.lblSavedInfo.Size = new System.Drawing.Size(40, 20);
+            this.lblSavedInfo.TabIndex = 9;
+            this.lblSavedInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // frmClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(489, 319);
+            this.ClientSize = new System.Drawing.Size(489, 323);
+            this.Controls.Add(this.lblSavedInfo);
+            this.Controls.Add(this.lblLoadedInfo);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.btnSettings);
             this.Controls.Add(this.btnSave);
@@ -544,6 +566,8 @@
         private System.Windows.Forms.Button btnSettings;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel tslblConnState;
+        private System.Windows.Forms.Label lblLoadedInfo;
+        private System.Windows.Forms.Label lblSavedInfo;
     }
 }
 
