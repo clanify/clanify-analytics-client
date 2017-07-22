@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmClient));
             this.txtSelectDemo = new System.Windows.Forms.TextBox();
-            this.btnSelectDemo = new System.Windows.Forms.Button();
             this.lblInfoEventName = new System.Windows.Forms.Label();
             this.cmbInfoEventName = new System.Windows.Forms.ComboBox();
             this.lblInfoMatchDate = new System.Windows.Forms.Label();
@@ -70,6 +70,7 @@
             this.btnSettings = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
             this.btnReadDemoHeader = new System.Windows.Forms.Button();
+            this.btnSelectDemo = new System.Windows.Forms.Button();
             this.tcMain.SuspendLayout();
             this.tabDemoInfo.SuspendLayout();
             this.tabDemoHeader.SuspendLayout();
@@ -82,18 +83,8 @@
             this.txtSelectDemo.Location = new System.Drawing.Point(12, 12);
             this.txtSelectDemo.Name = "txtSelectDemo";
             this.txtSelectDemo.ReadOnly = true;
-            this.txtSelectDemo.Size = new System.Drawing.Size(379, 20);
+            this.txtSelectDemo.Size = new System.Drawing.Size(389, 20);
             this.txtSelectDemo.TabIndex = 0;
-            // 
-            // btnSelectDemo
-            // 
-            this.btnSelectDemo.Location = new System.Drawing.Point(397, 10);
-            this.btnSelectDemo.Name = "btnSelectDemo";
-            this.btnSelectDemo.Size = new System.Drawing.Size(80, 23);
-            this.btnSelectDemo.TabIndex = 1;
-            this.btnSelectDemo.Text = "Demo...";
-            this.btnSelectDemo.UseVisualStyleBackColor = true;
-            this.btnSelectDemo.Click += new System.EventHandler(this.btnSelectDemo_Click);
             // 
             // lblInfoEventName
             // 
@@ -448,18 +439,18 @@
             // lblLoadedInfo
             // 
             this.lblLoadedInfo.BackColor = System.Drawing.Color.Green;
-            this.lblLoadedInfo.Location = new System.Drawing.Point(397, 35);
+            this.lblLoadedInfo.Location = new System.Drawing.Point(407, 35);
             this.lblLoadedInfo.Name = "lblLoadedInfo";
-            this.lblLoadedInfo.Size = new System.Drawing.Size(40, 20);
+            this.lblLoadedInfo.Size = new System.Drawing.Size(34, 20);
             this.lblLoadedInfo.TabIndex = 8;
             this.lblLoadedInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblSavedInfo
             // 
             this.lblSavedInfo.BackColor = System.Drawing.Color.Red;
-            this.lblSavedInfo.Location = new System.Drawing.Point(437, 35);
+            this.lblSavedInfo.Location = new System.Drawing.Point(441, 35);
             this.lblSavedInfo.Name = "lblSavedInfo";
-            this.lblSavedInfo.Size = new System.Drawing.Size(40, 20);
+            this.lblSavedInfo.Size = new System.Drawing.Size(34, 20);
             this.lblSavedInfo.TabIndex = 9;
             this.lblSavedInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
@@ -501,6 +492,19 @@
             this.btnReadDemoHeader.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnReadDemoHeader.UseVisualStyleBackColor = true;
             this.btnReadDemoHeader.Click += new System.EventHandler(this.btnReadDemoHeader_Click);
+            // 
+            // btnSelectDemo
+            // 
+            this.btnSelectDemo.Image = ((System.Drawing.Image)(resources.GetObject("btnSelectDemo.Image")));
+            this.btnSelectDemo.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnSelectDemo.Location = new System.Drawing.Point(407, 10);
+            this.btnSelectDemo.Name = "btnSelectDemo";
+            this.btnSelectDemo.Size = new System.Drawing.Size(70, 23);
+            this.btnSelectDemo.TabIndex = 1;
+            this.btnSelectDemo.Text = "Demo...";
+            this.btnSelectDemo.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnSelectDemo.UseVisualStyleBackColor = true;
+            this.btnSelectDemo.Click += new System.EventHandler(this.btnSelectDemo_Click);
             // 
             // frmClient
             // 

@@ -120,4 +120,15 @@
   <metadata name="statusStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="btnSelectDemo.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAADpSURBVDhPpZE9DoJAEIU5nBVn8SIkRhtb7WxM4AZijJ2FVFpgQE200EYLTWSFjDvDDiw/Jmt8
+        yccMj503BCwA+ItW8xdYtuM4oFM/+I1iuC7TEKttmMVvU0eqGRCGG2P0EAoQQtCDTm9lTCWAk7uTLcSP
+        DOJnBpGEekmkKvo5KXBIHrDLtw9nRwhuKQR3CVbFWuv5vhKwWPq03b++wb9IsGr9nKsCh/HvFQGuN6Xt
+        3klUOSs0z5X3KqD8Bjg83ifESNWCQ9Xn7Y2AfvgiBqpyX5KQx9tRFCBlo2kKnqcpKQrAyz+0muaA9QGu
+        bP0wydG5GAAAAABJRU5ErkJggg==
+</value>
+  </data>
 </root>

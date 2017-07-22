@@ -63,9 +63,8 @@ namespace clanify_analyzer_client
             }
             else
             {
-                int port = 0;
-
-                if (int.TryParse(Properties.Settings.Default["database_port"].ToString().Trim(), out port))
+                //check if the database port is available.
+                if (int.TryParse(Properties.Settings.Default["database_port"].ToString().Trim(), out int port))
                 {
                     dbPort = port;
                 }
@@ -135,19 +134,21 @@ namespace clanify_analyzer_client
         private void btnSelectDemo_Click(object sender, EventArgs e)
         {
             //create and show a OpenFileDialog to select a demo file.
-            OpenFileDialog dlgDemoFile = new OpenFileDialog();
-            dlgDemoFile.AddExtension = false;
-            dlgDemoFile.CheckFileExists = true;
-            dlgDemoFile.CheckPathExists = true;
-            dlgDemoFile.DefaultExt = ".dem";
-            dlgDemoFile.Filter = "demo file (*.dem)|*.dem";
-            dlgDemoFile.InitialDirectory = Application.StartupPath;
-            dlgDemoFile.Multiselect = false;
-            dlgDemoFile.ShowHelp = false;
-            dlgDemoFile.ShowReadOnly = false;
-            dlgDemoFile.SupportMultiDottedExtensions = false;
-            dlgDemoFile.Title = "Demo-Datei auswählen...";
-            dlgDemoFile.ValidateNames = true;
+            OpenFileDialog dlgDemoFile = new OpenFileDialog()
+            {
+                AddExtension = false,
+                CheckFileExists = true,
+                CheckPathExists = true,
+                DefaultExt = ".dem",
+                Filter = "demo file (*.dem)|*.dem",
+                InitialDirectory = Application.StartupPath,
+                Multiselect = false,
+                ShowHelp = false,
+                ShowReadOnly = false,
+                SupportMultiDottedExtensions = false,
+                Title = "Demo-Datei auswählen...",
+                ValidateNames = true
+            };
 
             //check if the Dialog was closed by OK.
             if (dlgDemoFile.ShowDialog() == DialogResult.OK )
@@ -217,9 +218,14 @@ namespace clanify_analyzer_client
                 //run through all events to initialize the list of events.
                 foreach (KeyValuePair<int, string> eventListItem in eventList)
                 {
-                    ComboBoxItem cItem = new ComboBoxItem();
-                    cItem.Text = eventListItem.Value;
-                    cItem.Value = eventListItem.Key;
+                    //create the new combobox item.
+                    ComboBoxItem cItem = new ComboBoxItem()
+                    {
+                        Text = eventListItem.Value,
+                        Value = eventListItem.Key
+                    };
+
+                    //add the combobox item to the list.
                     items.Add(cItem);
                 }
             }
@@ -237,15 +243,17 @@ namespace clanify_analyzer_client
         private void fillCmbMapName()
         {
             //create a list with all supported maps.
-            Dictionary<string, string> mapList = new Dictionary<string, string>();
-            mapList.Add("de_cbble", "Cobblestone");
-            mapList.Add("de_inferno", "Inferno");
-            mapList.Add("de_cache", "Cache");
-            mapList.Add("de_mirage", "Mirage");
-            mapList.Add("de_overpass", "Overpass");
-            mapList.Add("de_nuke", "Nuke");
-            mapList.Add("de_train", "Train");
-            mapList.Add("de_dust2", "Dust2");
+            Dictionary<string, string> mapList = new Dictionary<string, string>
+            {
+                { "de_cbble", "Cobblestone" },
+                { "de_inferno", "Inferno" },
+                { "de_cache", "Cache" },
+                { "de_mirage", "Mirage" },
+                { "de_overpass", "Overpass" },
+                { "de_nuke", "Nuke" },
+                { "de_train", "Train" },
+                { "de_dust2", "Dust2" }
+            };
 
             //clear the list of maps to initialize.
             cmbInfoMapName.Items.Clear();
@@ -256,9 +264,14 @@ namespace clanify_analyzer_client
             //run through all maps to initialize the list of maps.
             foreach (KeyValuePair<string, string> mapListItem in mapList)
             {
-                ComboBoxItem cItem = new ComboBoxItem();
-                cItem.Text = mapListItem.Value;
-                cItem.Value = mapListItem.Key;
+                //initialize the item for the list.
+                ComboBoxItem cItem = new ComboBoxItem()
+                {
+                    Text = mapListItem.Value,
+                    Value = mapListItem.Key
+                };
+
+                //add the new combobox item.
                 items.Add(cItem);
             }
 

@@ -65,7 +65,17 @@ namespace clanify_analyzer_client.Properties {
         /// </summary>
         internal static System.Drawing.Bitmap icon_info {
             get {
-                object obj = ResourceManager.GetObject("icon-info", resourceCulture);
+                object obj = ResourceManager.GetObject("icon_info", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap icon_open {
+            get {
+                object obj = ResourceManager.GetObject("icon_open", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -75,7 +85,7 @@ namespace clanify_analyzer_client.Properties {
         /// </summary>
         internal static System.Drawing.Bitmap icon_save {
             get {
-                object obj = ResourceManager.GetObject("icon-save", resourceCulture);
+                object obj = ResourceManager.GetObject("icon_save", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -85,7 +95,7 @@ namespace clanify_analyzer_client.Properties {
         /// </summary>
         internal static System.Drawing.Bitmap icon_settings {
             get {
-                object obj = ResourceManager.GetObject("icon-settings", resourceCulture);
+                object obj = ResourceManager.GetObject("icon_settings", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

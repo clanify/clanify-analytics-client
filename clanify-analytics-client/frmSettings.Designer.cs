@@ -145,11 +145,14 @@
             // 
             // btnSaveSettings
             // 
+            this.btnSaveSettings.Image = global::clanify_analyzer_client.Properties.Resources.icon_save;
+            this.btnSaveSettings.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnSaveSettings.Location = new System.Drawing.Point(12, 181);
             this.btnSaveSettings.Name = "btnSaveSettings";
-            this.btnSaveSettings.Size = new System.Drawing.Size(75, 23);
+            this.btnSaveSettings.Size = new System.Drawing.Size(82, 23);
             this.btnSaveSettings.TabIndex = 3;
             this.btnSaveSettings.Text = "Speichern";
+            this.btnSaveSettings.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnSaveSettings.UseVisualStyleBackColor = true;
             this.btnSaveSettings.Click += new System.EventHandler(this.btnSaveSettings_Click);
             // 
