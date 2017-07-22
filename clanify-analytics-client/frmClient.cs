@@ -161,6 +161,7 @@ namespace clanify_analyzer_client
             Dictionary<int, string> eventList = new Dictionary<int, string>();
             eventList.Add(1, "ESL One Cologne 2017");
             eventList.Add(2, "ESL One New York 2016");
+            eventList.Add(3, "PGL Major Krakow 2017");
 
             //clear the list of events to initialize.
             cmbInfoEventName.Items.Clear();
@@ -406,7 +407,7 @@ namespace clanify_analyzer_client
             //HLTV demos has not match start event, the match starting directly with first tick.
             this.dtDamage.Rows.Clear();
             this.dtFrags.Rows.Clear();
-            this.dtWeaponEvents.Rows.Clear();
+            this.dtWeaponEvents.Rows.Clear();  
         }
 
         //handler for the event if a weapon is fired.
@@ -448,8 +449,14 @@ namespace clanify_analyzer_client
             //check if the file is available to parse.
             if (File.Exists(txtSelectDemo.Text))
             {
+                //set the default for the unsafe mode (rendering the single ticks for broken demos).
+                bool unsafeMode = false;
+
+                //create the file stream to read the demo.
+                FileStream demoFileStream = File.OpenRead(txtSelectDemo.Text);
+
                 //open the demo and parse the header to display on application.
-                DemoInfo.DemoParser demo = new DemoInfo.DemoParser(File.OpenRead(txtSelectDemo.Text));
+                DemoInfo.DemoParser demo = new DemoInfo.DemoParser(demoFileStream);
 
                 //bind the header events to their handler.
                 demo.HeaderParsed += HandleHeaderParsed;
@@ -460,8 +467,19 @@ namespace clanify_analyzer_client
                 //check if the demo is valid and available.
                 if (demo.Header.PlaybackTicks < 1)
                 {
-                    MessageBox.Show("The demo isn't valid or couldn't be parsed!", "clanify - Analytics Client", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return;
+                    //check  if the user want ot parse in unsafe mode.
+                    DialogResult dlgState = MessageBox.Show("No ticks detected! Parse single ticks from demo (maybe uncomplete)?", "clanify - Analytics Client", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    //check if the unsafe mode should be used.
+                    if (dlgState == DialogResult.No )
+                    {
+                        unsafeMode = false;
+                        return;
+                    } 
+                    else
+                    {
+                        unsafeMode = true;
+                    }
                 }
 
                 //get the emtpy datatable to save the match information.
@@ -471,8 +489,8 @@ namespace clanify_analyzer_client
                 //get the date and time value from the picker and set the merged one.
                 DateTime date = dtpInfoMatchDate.Value;
                 DateTime time = dtpInfoMatchTime.Value;
-                DateTime matchStart = new DateTime(date.Year, date.Month, date.Day, time.Hour, date.Minute, 0);
-
+                DateTime matchStart = new DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, 0);
+                    
                 //set the information from form to new row.
                 DataRow drNewMatch = dtMatch.NewRow();
                 drNewMatch["id"] = DBNull.Value;
@@ -489,17 +507,17 @@ namespace clanify_analyzer_client
                 drNewMatch["protocol"] = txtHeaderProtocol.Text.ToString();
                 drNewMatch["server_name"] = txtHeaderServerName.Text.ToString();
                 drNewMatch["signon_length"] = txtHeaderSignonLength.Text.ToString();
-                
+
                 //create the checksum of the file and set to the new row.
                 MD5 md5 = MD5.Create();
                 Stream demoStream = File.OpenRead(txtSelectDemo.Text);
                 Regex notAlpha = new Regex("[^a-zA-Z0-9]");
-                drNewMatch["file_checksum"] = notAlpha.Replace(BitConverter.ToString(md5.ComputeHash(demoStream)).Replace("-", "‌​").ToLower(), ""); 
+                drNewMatch["file_checksum"] = notAlpha.Replace(BitConverter.ToString(md5.ComputeHash(demoStream)).Replace("-", "‌​").ToLower(), "");
 
                 //save the information to the database.
                 drNewMatch = clsTableMatch.saveRowMatch(drNewMatch);
                 this.drMatch = drNewMatch;
-
+                
                 //init the table for the frags information.
                 TableFrags clsFrags = new TableFrags(this.dbConnection);
                 this.dtFrags = clsFrags.getTableSchema();
@@ -522,7 +540,7 @@ namespace clanify_analyzer_client
 
                 //init the table for the match players information.
                 TableMatchPlayers clsMatchPlayers = new TableMatchPlayers(this.dbConnection);
-                this.dtMatchPlayers = clsMatchPlayers.getTableSchema();
+                this.dtMatchPlayers = clsMatchPlayers.getTableSchema();         
 
                 //bind the main demo events to their handler.
                 demo.PlayerKilled += HandlePlayerKilled;
@@ -531,16 +549,32 @@ namespace clanify_analyzer_client
                 demo.MatchStarted += HandleMatchStarted;
                 demo.WeaponFired += HandleWeaponFired;
 
-                //init the progressbar to show the current state.
-                pbDemoProgress.Minimum = 0;
-                pbDemoProgress.Maximum = demo.Header.PlaybackTicks;
-                pbDemoProgress.Value = 0;
-
-                //now we can start parsing the whole demo.
-                while (demo.ParseNextTick())
+                //check which mode shoud be used.
+                if (unsafeMode == true)
                 {
-                    pbDemoProgress.Value += 1;
+                    try
+                    {
+                        //now we can start parsing the whole demo.
+                        while (demo.ParseNextTick())
+                        {
+                            
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
                 }
+                else
+                {
+                    //parse the demo to the end.
+                    demo.ParseToEnd();
+                }
+                
+                //close the demo file stream.
+                demoFileStream.Close();
+                demoFileStream.Dispose();
+                demoFileStream = null;
 
                 //the file was parsed to the end, show some feedback.
                 MessageBox.Show("The demo was parsed.", "clanify - Analytics Client", MessageBoxButtons.OK, MessageBoxIcon.Information);

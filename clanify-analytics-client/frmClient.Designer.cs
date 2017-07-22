@@ -68,7 +68,6 @@
             this.btnSettings = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tslblConnState = new System.Windows.Forms.ToolStripStatusLabel();
-            this.pbDemoProgress = new System.Windows.Forms.ProgressBar();
             this.tcMain.SuspendLayout();
             this.tabDemoInfo.SuspendLayout();
             this.tabDemoHeader.SuspendLayout();
@@ -167,10 +166,10 @@
             // 
             this.tcMain.Controls.Add(this.tabDemoInfo);
             this.tcMain.Controls.Add(this.tabDemoHeader);
-            this.tcMain.Location = new System.Drawing.Point(12, 54);
+            this.tcMain.Location = new System.Drawing.Point(12, 38);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(465, 213);
+            this.tcMain.Size = new System.Drawing.Size(465, 229);
             this.tcMain.TabIndex = 4;
             // 
             // tabDemoInfo
@@ -186,7 +185,7 @@
             this.tabDemoInfo.Location = new System.Drawing.Point(4, 22);
             this.tabDemoInfo.Name = "tabDemoInfo";
             this.tabDemoInfo.Padding = new System.Windows.Forms.Padding(3);
-            this.tabDemoInfo.Size = new System.Drawing.Size(457, 187);
+            this.tabDemoInfo.Size = new System.Drawing.Size(457, 203);
             this.tabDemoInfo.TabIndex = 0;
             this.tabDemoInfo.Text = "Info";
             this.tabDemoInfo.UseVisualStyleBackColor = true;
@@ -474,20 +473,11 @@
             this.tslblConnState.Name = "tslblConnState";
             this.tslblConnState.Size = new System.Drawing.Size(0, 17);
             // 
-            // pbDemoProgress
-            // 
-            this.pbDemoProgress.Location = new System.Drawing.Point(12, 38);
-            this.pbDemoProgress.Name = "pbDemoProgress";
-            this.pbDemoProgress.Size = new System.Drawing.Size(465, 10);
-            this.pbDemoProgress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            this.pbDemoProgress.TabIndex = 8;
-            // 
             // frmClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(489, 319);
-            this.Controls.Add(this.pbDemoProgress);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.btnSettings);
             this.Controls.Add(this.btnSave);
@@ -554,7 +544,6 @@
         private System.Windows.Forms.Button btnSettings;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel tslblConnState;
-        private System.Windows.Forms.ProgressBar pbDemoProgress;
     }
 }
 
