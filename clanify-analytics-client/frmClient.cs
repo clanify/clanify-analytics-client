@@ -23,12 +23,14 @@ namespace clanify_analyzer_client
         /// some tables and rows to store the data of the demo file.
         /// </summary>
         private DataRow drMatch = null;
+        private DataRow drRound = null;
         private DataTable dtFrags = null;
         private DataTable dtDamage = null;
         private DataTable dtPlayers = null;
         private DataTable dtTeams = null;
         private DataTable dtMatchPlayers = null;
         private DataTable dtWeaponEvents = null;
+        private DataTable dtRounds = null;
 
         public frmClient()
         {
@@ -324,65 +326,203 @@ namespace clanify_analyzer_client
             this.dtFrags.Rows.Add(drNewFrag);
         }
 
-        private void HandleRoundEnd(object sender, DemoInfo.RoundEndedEventArgs e)
+        /// ----------------------------------------------------------------------------------------------------
+        /// -- Events und Funktionen welche den Runden-Beginn verarbeiten.
+        /// ----------------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Event welches aufgerufen wird, wenn die Runde gestartet wurde.
+        /// </summary>
+        private void HandleRoundStart(object sender, DemoInfo.RoundStartedEventArgs e)
         {
-            //get the demo information.
+            //Informationen der Demo ermitteln.
             DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
 
-            //only the first round should be checked to bind the players.
-            if ((demo.CTScore + demo.TScore + 1) != 1)
+            //Die Informationen der Runde in eine neue Zeile setzen und bis zum Ende der Runde merken.
+            this.drRound = this.dtRounds.NewRow();
+            this.drRound["match_id"] = drMatch["id"];
+            this.drRound["tick_start"] = demo.CurrentTick;
+        }
+
+
+        /// ----------------------------------------------------------------------------------------------------
+        /// -- Events und Funktionen welche das Runden-Ende verarbeiten.
+        /// ----------------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Event welches aufgerufen wird, wenn die Runde zu Ende ist. Nach diesem Event
+        /// wird auch das Event "HandleRoundOfficialyEnd" aufgerufen. Dort machen wir dann den Abschluss.
+        /// </summary>
+        private void HandleRoundEnd(object sender, DemoInfo.RoundEndedEventArgs e)
+        {
+            //Informationen der Demo ermitteln.
+            DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
+
+            //Status ermitteln ob wir uns in der ersten Runde befinden. Es
+            //muss sich dabei um die erste Runde des gesamten Spiels handeln.
+            //Durch mehrteilige Demos können auch mehrere erste Runden auftreten.
+            bool overallFirstRound = (!chkAppend.Checked) && ((demo.CTScore + demo.TScore + 1) == 1);
+
+            //In der ersten Runde des Spiels kümmern wir uns um die Teams.
+            //In der Regel sollten hier alle am Start sein und keiner fehlen. Falls doch muss
+            //dass hier noch intelligenter werden. Evtl. auch beim Bind-Event allerdings
+            //könnte dort auch ein ungebetener Gast auf den Server kommen.
+            if (overallFirstRound)
+            {
+                //Informationen der zwei Teams setzen.
+                DataRow drNewTeamCT = this.dtTeams.NewRow();
+                drNewTeamCT["name"] = demo.CTClanName.ToString();
+                this.dtTeams.Rows.Add(drNewTeamCT);
+                DataRow drNewTeamT = this.dtTeams.NewRow();
+                drNewTeamT["name"] = demo.TClanName;
+                this.dtTeams.Rows.Add(drNewTeamT);
+
+                //Wir speichern die Teams direkt in der Datenbank. Diese Informationen
+                //kann man immer brauchen, daher müssen wir hier nicht sparen.
+                TableTeams clsTableTeams = new TableTeams(this.dbConnection);
+                clsTableTeams.saveTable(this.dtTeams);
+
+                //Nun ermitteln wir auch die Spieler und ordnen diese den
+                //Teams zu. Hier gilt dass Gleiche wie bei den Teams (mehr Info). 
+                foreach (DemoInfo.Player player in demo.PlayingParticipants)
+                {
+                    //Der Spectator interessiert uns nicht. (OK, er könnte gewinnen - interessiert nur keinen).
+                    if (player.Team == DemoInfo.Team.CounterTerrorist || player.Team == DemoInfo.Team.Terrorist)
+                    {
+                        //Informationen des Spielers in eine neue Zeile setzen.
+                        DataRow drNewPlayer = this.dtPlayers.NewRow();
+                        drNewPlayer["steam_id"] = player.SteamID;
+                        drNewPlayer["name"] = player.Name.ToString();
+
+                        //Den Spieler nur hinzufügen, wenn dieser noch nicht existiert.
+                        if (this.dtPlayers.Select("steam_id = " + (Int64) player.SteamID).Length == 0)
+                        {
+                            this.dtPlayers.Rows.Add(drNewPlayer);
+                        }
+
+                        //Den Spieler nun auch als Teilnehmer dieses Spiels speichern.
+                        DataRow drMatchPlayer = this.dtMatchPlayers.NewRow();
+                        drMatchPlayer["match_id"] = this.drMatch["id"];
+                        drMatchPlayer["steam_id"] = player.SteamID;
+
+                        //Die Verbindung zwischen dem Spieler und Team wird nachfolgend gesetzt.
+                        if (player.Team == DemoInfo.Team.Terrorist)
+                        {
+                            drMatchPlayer["team_id"] = this.dtTeams.Select("name = '" + demo.TClanName + "'")[0]["id"];
+                            this.dtMatchPlayers.Rows.Add(drMatchPlayer);
+                        }
+                        else
+                        {
+                            drMatchPlayer["team_id"] = this.dtTeams.Select("name = '" + demo.CTClanName + "'")[0]["id"];
+                            this.dtMatchPlayers.Rows.Add(drMatchPlayer);
+                        }
+                    }
+                }
+            }
+
+            //Da die Runde evtl. zurückgesetzt werden könnte brechen wir hier ab falls dies der Fall ist.
+            if (this.drRound == null)
             {
                 return;
             }
 
-            //set the information about the two teams.
-            DataRow drNewTeamCT = this.dtTeams.NewRow();
-            drNewTeamCT["name"] = demo.CTClanName.ToString();
-            this.dtTeams.Rows.Add(drNewTeamCT);
-            DataRow drNewTeamT = this.dtTeams.NewRow();
-            drNewTeamT["name"] = demo.TClanName;
-            this.dtTeams.Rows.Add(drNewTeamT);
-
-            //save the players to the database.
-            TableTeams clsTableTeams = new TableTeams(this.dbConnection);
-            clsTableTeams.saveTable(this.dtTeams);
-
-            foreach (DemoInfo.Player player in demo.PlayingParticipants)
+            //Prüfen wer die Runde gewonnen hat. Normalerweise kann das nur T und CT sein. Aber aus
+            //irgendeinem Grund kann auch der Spectator die Runde gewinnen. In einem solchen Fall verwerfen wir die Runde.
+            //Wir ermitteln die Nummer der Runde auf Basis der bereits vorhandenen, das offizielle
+            //Ende überschreibt die Runde nochmals. Am Ende des Spiels muss dies aber nicht der Fall sein!
+            if (e.Winner == DemoInfo.Team.CounterTerrorist)
             {
-                //check if the player is a CT or T player.
-                if (player.Team == DemoInfo.Team.CounterTerrorist || player.Team == DemoInfo.Team.Terrorist )
-                {
-                    //set the player information to a new row.
-                    DataRow drNewPlayer = this.dtPlayers.NewRow();
-                    drNewPlayer["steam_id"] = player.SteamID;
-                    drNewPlayer["name"] = player.Name.ToString();
-
-                    //check if the player doesn't exists on the table.
-                    if (this.dtPlayers.Select("steam_id = " + player.SteamID).Length == 0)
-                    {
-                        this.dtPlayers.Rows.Add(drNewPlayer);
-                    }
-
-                    //set the player to the match and team.
-                    DataRow drMatchPlayer = this.dtMatchPlayers.NewRow();
-                    drMatchPlayer["match_id"] = this.drMatch["id"];
-                    drMatchPlayer["steam_id"] = player.SteamID;
-                    
-                    //get the team id of the player to create the relationship between the player and team.
-                    if (player.Team == DemoInfo.Team.Terrorist )
-                    {
-                        drMatchPlayer["team_id"] = this.dtTeams.Select("name = '" + demo.TClanName + "'")[0]["id"];
-                    }
-                    else
-                    {
-                        drMatchPlayer["team_id"] = this.dtTeams.Select("name = '" + demo.CTClanName + "'")[0]["id"];
-                    }
-
-                    //add the player to the table saving the relationship between match, team and player.
-                    this.dtMatchPlayers.Rows.Add(drMatchPlayer);
-                }
+                this.drRound["winning_team"] = "CT";
+                this.drRound["winning_team_id"] = (this.dtTeams.Select("name = '" + demo.CTClanName + "'"))[0]["id"];
+                this.drRound["tick_end"] = demo.CurrentTick;
+                this.drRound["round"] = maxRoundFromRounds() + 1;
+            }
+            else if (e.Winner == DemoInfo.Team.Terrorist)
+            {
+                this.drRound["winning_team"] = "T";
+                this.drRound["winning_team_id"] = (this.dtTeams.Select("name = '" + demo.TClanName + "'"))[0]["id"];
+                this.drRound["tick_end"] = demo.CurrentTick;
+                this.drRound["round"] = maxRoundFromRounds() + 1;
+            }
+            else if (e.Winner == DemoInfo.Team.Spectate)
+            {
+                //Der Spectator gewinnt die Runde, also verwerfen.
+                this.drRound = null;
             }
         }
+
+        /// <summary>
+        /// Event welches aufgerufen wird, wenn die Runde offiziell beendet ist.
+        /// </summary>
+        private void HandleRoundOfficialEnd(object sender, DemoInfo.RoundOfficiallyEndedEventArgs e)
+        {
+            //Da auch der Spectator die Runde gewinnen kann und wir dann die Runde zurücksetzen
+            //könnte es hier keine Runde geben! Auch andere Abbrüche könnten noch folgen so dass
+            //wir hier einfach auf Nummer sicher gehen, ob die Runde vorhanden ist.
+            if (this.drRound == null)
+            {
+                return;
+            }
+
+            //Informationen der Demo ermitteln.
+            DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
+
+            //Wir ermitteln ob die Runde bereits vorhanden ist, falls diese vorhanden ist,
+            //wird diese entfernt.
+            DataRow[] drRoundsExist = this.dtRounds.Select("round = " + (int) (demo.CTScore + demo.TScore));
+
+            //Alle Runden durchlaufen und in der Tabelle löschen. Da wir hier wissen welche Runde
+            //zu Ende ist, können wir diese löschen falls diese nochmal auftaucht. So können wir
+            //Spielabbrüche und Wiederholungsrunden erkennen und fehlerhafte und ungültige Runden ignorieren.
+            //Die Erkennung muss definitiv besser werden, aber für's erste sollte das reichen da die DemoInfo
+            //momentan einfach nicht mehr hergibt (oder ich dass nicht weiß :)).
+            if (drRoundsExist.Length == 1)
+            {
+                this.dtRounds.Rows.Remove(drRoundsExist[0]);
+            }
+            
+            //Wir setzen hier nochmals die Runde da nun der Score richtig dargestellt ist.
+            //Zusätzlich setzen wir den Tick an welchem die Runde endet und setzen die Zeile in die Tabelle.
+            //Die Ticks unterscheiden sich leicht von der Demo (Shift + F2 oder demoui). Da
+            //die Aktionen (frags, damage) jedoch nur danach passieren können diese Ticks schon verwendet werden.
+            drRound["tick_end"] = demo.CurrentTick;
+            drRound["round"] = demo.CTScore + demo.TScore;
+            this.dtRounds.Rows.Add(drRound);
+
+            //Zur Sicherheit setzen wir hier die Runde wieder zurück. Nach diesem Punkt 
+            //brauchen wir die Zeile nicht mehr. Der Rundenbeginn sollte die Runde neu
+            //aufbauen so dass keine alten Daten erhalten bleiben sollten.
+            this.drRound = null;
+        }
+       
+        /// <summary>
+        /// Funktion um die letzte vorhandene Runde aus der Tabelle der Runden zu ermitteln.
+        /// </summary>
+        /// <returns>Die letzte vorhandene Runde in der Tabelle der Runden.</returns>
+        private int maxRoundFromRounds()
+        {
+            //Zurücksetzen der Runde und der temporären Runde.
+            int round = 0;
+            int tmp_round = 0;
+
+            //Alle Runden durchlaufen um die höchste Runden-Nummer zu ermitteln.
+            foreach (DataRow drRound in this.dtRounds.Rows)
+            {
+                //Aus der Zeile die Runden-Nummer ermitteln.
+                int.TryParse(drRound["round"].ToString(), out tmp_round);
+
+                //Falls wir eine höhere Runden-Nummer finden merken wir uns diese.
+                if (tmp_round > round)
+                {
+                    round = tmp_round;
+                }
+            }
+
+            //Höchste Runden-Nummer wurde gefunden.
+            return round;
+        }
+
+        
 
         //handler for the event if a player was hurt.
         private void HandlePlayerHurt(object sender, DemoInfo.PlayerHurtEventArgs e)
@@ -469,11 +609,16 @@ namespace clanify_analyzer_client
         {
             //reset the tables for frags and damage.
             //HLTV demos has not match start event, the match starting directly with first tick.
-            this.dtDamage.Rows.Clear();
-            this.dtFrags.Rows.Clear();
-            this.dtWeaponEvents.Rows.Clear();  
+            //but not on the append mode, the match is starting again in multipart demos.
+            if (chkAppend.Checked == false)
+            {
+                this.dtDamage.Rows.Clear();
+                this.dtFrags.Rows.Clear();
+                this.dtWeaponEvents.Rows.Clear();
+                this.dtRounds.Rows.Clear();
+            }
         }
-
+        
         //handler for the event if a weapon is fired.
         private void HandleWeaponFired(object sender, DemoInfo.WeaponFiredEventArgs e)
         {
@@ -546,70 +691,80 @@ namespace clanify_analyzer_client
                     }
                 }
 
-                //get the emtpy datatable to save the match information.
-                TableMatch clsTableMatch = new TableMatch(this.dbConnection);
-                DataTable dtMatch = clsTableMatch.getTableSchema();
+                //check if the demo information should be added.
+                if (chkAppend.Checked == false)
+                {
+                    //get the emtpy datatable to save the match information.
+                    TableMatch clsTableMatch = new TableMatch(this.dbConnection);
+                    DataTable dtMatch = clsTableMatch.getTableSchema();
 
-                //get the date and time value from the picker and set the merged one.
-                DateTime date = dtpInfoMatchDate.Value;
-                DateTime time = dtpInfoMatchTime.Value;
-                DateTime matchStart = new DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, 0);
-                    
-                //set the information from form to new row.
-                DataRow drNewMatch = dtMatch.NewRow();
-                drNewMatch["id"] = DBNull.Value;
-                drNewMatch["event_id"] = cmbInfoEventName.SelectedValue;
-                drNewMatch["match_start"] = matchStart;
-                drNewMatch["client_name"] = txtHeaderClientName.Text.ToString();
-                drNewMatch["filestamp"] = txtHeaderFilestamp.Text.ToString();
-                drNewMatch["game_directory"] = txtHeaderGameDirectory.Text.ToString();
-                drNewMatch["map_name"] = cmbInfoMapName.SelectedValue.ToString();
-                drNewMatch["network_protocol"] = txtHeaderNetworkProtocol.Text.ToString();
-                drNewMatch["playback_frames"] = txtHeaderPlaybackFrames.Text.ToString();
-                drNewMatch["playback_ticks"] = txtHeaderPlaybackTicks.Text.ToString();
-                drNewMatch["playback_time"] = txtHeaderPlaybackTime.Text.ToString();
-                drNewMatch["protocol"] = txtHeaderProtocol.Text.ToString();
-                drNewMatch["server_name"] = txtHeaderServerName.Text.ToString();
-                drNewMatch["signon_length"] = txtHeaderSignonLength.Text.ToString();
+                    //get the date and time value from the picker and set the merged one.
+                    DateTime date = dtpInfoMatchDate.Value;
+                    DateTime time = dtpInfoMatchTime.Value;
+                    DateTime matchStart = new DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, 0);
 
-                //create the checksum of the file and set to the new row.
-                MD5 md5 = MD5.Create();
-                Stream demoStream = File.OpenRead(txtSelectDemo.Text);
-                Regex notAlpha = new Regex("[^a-zA-Z0-9]");
-                drNewMatch["file_checksum"] = notAlpha.Replace(BitConverter.ToString(md5.ComputeHash(demoStream)).Replace("-", "‌​").ToLower(), "");
+                    //set the information from form to new row.
+                    DataRow drNewMatch = dtMatch.NewRow();
+                    drNewMatch["id"] = DBNull.Value;
+                    drNewMatch["event_id"] = cmbInfoEventName.SelectedValue;
+                    drNewMatch["match_start"] = matchStart;
+                    drNewMatch["client_name"] = txtHeaderClientName.Text.ToString();
+                    drNewMatch["filestamp"] = txtHeaderFilestamp.Text.ToString();
+                    drNewMatch["game_directory"] = txtHeaderGameDirectory.Text.ToString();
+                    drNewMatch["map_name"] = cmbInfoMapName.SelectedValue.ToString();
+                    drNewMatch["network_protocol"] = txtHeaderNetworkProtocol.Text.ToString();
+                    drNewMatch["playback_frames"] = txtHeaderPlaybackFrames.Text.ToString();
+                    drNewMatch["playback_ticks"] = txtHeaderPlaybackTicks.Text.ToString();
+                    drNewMatch["playback_time"] = txtHeaderPlaybackTime.Text.ToString();
+                    drNewMatch["protocol"] = txtHeaderProtocol.Text.ToString();
+                    drNewMatch["server_name"] = txtHeaderServerName.Text.ToString();
+                    drNewMatch["signon_length"] = txtHeaderSignonLength.Text.ToString();
 
-                //save the information to the database.
-                drNewMatch = clsTableMatch.saveRowMatch(drNewMatch);
-                this.drMatch = drNewMatch;
+                    //create the checksum of the file and set to the new row.
+                    MD5 md5 = MD5.Create();
+                    Stream demoStream = File.OpenRead(txtSelectDemo.Text);
+                    Regex notAlpha = new Regex("[^a-zA-Z0-9]");
+                    drNewMatch["file_checksum"] = notAlpha.Replace(BitConverter.ToString(md5.ComputeHash(demoStream)).Replace("-", "‌​").ToLower(), "");
+
+                    //save the information to the database.
+                    drNewMatch = clsTableMatch.saveRowMatch(drNewMatch);
+                    this.drMatch = drNewMatch;
+
+                    //init the table for the frags information.
+                    TableFrags clsFrags = new TableFrags(this.dbConnection);
+                    this.dtFrags = clsFrags.getTableSchema();
+
+                    //init the table for the damage information.
+                    TableDamage clsDamage = new TableDamage(this.dbConnection);
+                    this.dtDamage = clsDamage.getTableSchema();
+
+                    //init the table for the weapon events.
+                    TableWeaponEvents clsWeaponEvents = new TableWeaponEvents(this.dbConnection);
+                    this.dtWeaponEvents = clsWeaponEvents.getTableSchema();
+
+                    //init the table for the player information.
+                    TablePlayers clsPlayers = new TablePlayers(this.dbConnection);
+                    this.dtPlayers = clsPlayers.getTableSchema();
+
+                    //init the table for the team information.
+                    TableTeams clsTeams = new TableTeams(this.dbConnection);
+                    this.dtTeams = clsTeams.getTableSchema();
+
+                    //init the table for the match players information.
+                    TableMatchPlayers clsMatchPlayers = new TableMatchPlayers(this.dbConnection);
+                    this.dtMatchPlayers = clsMatchPlayers.getTableSchema();
+
+                    //init the table for the rounds information.
+                    TableRounds clsRounds = new TableRounds(this.dbConnection);
+                    this.dtRounds = clsRounds.getTableSchema();
+                }
                 
-                //init the table for the frags information.
-                TableFrags clsFrags = new TableFrags(this.dbConnection);
-                this.dtFrags = clsFrags.getTableSchema();
-
-                //init the table for the damage information.
-                TableDamage clsDamage = new TableDamage(this.dbConnection);
-                this.dtDamage = clsDamage.getTableSchema();
-
-                //init the table for the weapon events.
-                TableWeaponEvents clsWeaponEvents = new TableWeaponEvents(this.dbConnection);
-                this.dtWeaponEvents = clsWeaponEvents.getTableSchema();
-
-                //init the table for the player information.
-                TablePlayers clsPlayers = new TablePlayers(this.dbConnection);
-                this.dtPlayers = clsPlayers.getTableSchema();
-
-                //init the table for the team information.
-                TableTeams clsTeams = new TableTeams(this.dbConnection);
-                this.dtTeams = clsTeams.getTableSchema();
-
-                //init the table for the match players information.
-                TableMatchPlayers clsMatchPlayers = new TableMatchPlayers(this.dbConnection);
-                this.dtMatchPlayers = clsMatchPlayers.getTableSchema();         
-
                 //bind the main demo events to their handler.
                 demo.PlayerKilled += HandlePlayerKilled;
                 demo.PlayerHurt += HandlePlayerHurt;
+                demo.RoundStart += HandleRoundStart;
                 demo.RoundEnd += HandleRoundEnd;
+                demo.RoundOfficiallyEnd += HandleRoundOfficialEnd;
                 demo.MatchStarted += HandleMatchStarted;
                 demo.WeaponFired += HandleWeaponFired;
 
@@ -651,7 +806,11 @@ namespace clanify_analyzer_client
             }
         }
 
-        //load event to load the controls of the form.
+        /// <summary>
+        /// event to initialize the form of the client.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void frmClient_Load(object sender, EventArgs e)
         {
             //init the state for loading and saving the data.
@@ -677,9 +836,21 @@ namespace clanify_analyzer_client
             dtpInfoMatchTime.Value = currentDateTime;
         }
 
-        //event to save the match information in database.
+        /// <summary>
+        /// event to store the demo information to the database.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnSave_Click(object sender, EventArgs e)
         {
+            //check if there is a open round.
+            if (this.drRound != null)
+            {
+                //add the round to the table.
+                this.dtRounds.Rows.Add(this.drRound);
+                this.drRound = null;
+            }
+
             //save the frags to the database.
             TableFrags clsTableFrags = new TableFrags(this.dbConnection);
             clsTableFrags.saveTable(this.dtFrags, (Int64) drMatch["id"]);
@@ -700,11 +871,19 @@ namespace clanify_analyzer_client
             TableMatchPlayers clsTableMatchPlayers = new TableMatchPlayers(this.dbConnection);
             clsTableMatchPlayers.saveTable(this.dtMatchPlayers, (Int64) drMatch["id"]);
 
+            //save the rounds to the database.
+            TableRounds clsTableRounds = new TableRounds(this.dbConnection);
+            clsTableRounds.saveTable(this.dtRounds, (Int64)drMatch["id"]);
+
             //set the feedback for the user.
             lblSavedInfo.BackColor = ControlPaint.Light(Color.Green);
         }
 
-        //event to open the settings.
+        /// <summary>
+        /// event to show the settings form.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnSettings_Click(object sender, EventArgs e)
         {
             //open the settings to configure the application.
@@ -718,7 +897,9 @@ namespace clanify_analyzer_client
             checkConnectionDB();
         }
 
-        //check the database connection and show state.
+        /// <summary>
+        /// method to check if the database connection is available and show the current state.
+        /// </summary>
         private void checkConnectionDB()
         {
             //check if the connection is successfull.
@@ -731,6 +912,33 @@ namespace clanify_analyzer_client
             {
                 tslblConnState.BackColor = ControlPaint.Light(Color.Red);
                 tslblConnState.Text = " --- ";
+            }
+        }
+
+        /// <summary>
+        /// event to switch the demo information tab to read only. 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void chkAppend_CheckedChanged(object sender, EventArgs e)
+        {
+            //cast the object to a CheckBox.
+            CheckBox chkSender = (CheckBox)sender;
+
+            //check if the CheckBox is checked.
+            if (chkSender.Checked == true)
+            {
+                dtpInfoMatchDate.Enabled = false;
+                dtpInfoMatchTime.Enabled = false;
+                cmbInfoEventName.Enabled = false;
+                cmbInfoMapName.Enabled = false;
+            } 
+            else
+            {
+                dtpInfoMatchDate.Enabled = true;
+                dtpInfoMatchTime.Enabled = true;
+                cmbInfoEventName.Enabled = true;
+                cmbInfoMapName.Enabled = true;
             }
         }
     }

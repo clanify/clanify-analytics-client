@@ -71,6 +71,7 @@
             this.btnSave = new System.Windows.Forms.Button();
             this.btnReadDemoHeader = new System.Windows.Forms.Button();
             this.btnSelectDemo = new System.Windows.Forms.Button();
+            this.chkAppend = new System.Windows.Forms.CheckBox();
             this.tcMain.SuspendLayout();
             this.tabDemoInfo.SuspendLayout();
             this.tabDemoHeader.SuspendLayout();
@@ -506,11 +507,24 @@
             this.btnSelectDemo.UseVisualStyleBackColor = true;
             this.btnSelectDemo.Click += new System.EventHandler(this.btnSelectDemo_Click);
             // 
+            // chkAppend
+            // 
+            this.chkAppend.AutoSize = true;
+            this.chkAppend.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkAppend.Location = new System.Drawing.Point(307, 38);
+            this.chkAppend.Name = "chkAppend";
+            this.chkAppend.Size = new System.Drawing.Size(94, 17);
+            this.chkAppend.TabIndex = 10;
+            this.chkAppend.Text = "Append Demo";
+            this.chkAppend.UseVisualStyleBackColor = true;
+            this.chkAppend.CheckedChanged += new System.EventHandler(this.chkAppend_CheckedChanged);
+            // 
             // frmClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(489, 317);
+            this.Controls.Add(this.chkAppend);
             this.Controls.Add(this.lblSavedInfo);
             this.Controls.Add(this.lblLoadedInfo);
             this.Controls.Add(this.statusStrip1);
@@ -581,6 +595,7 @@
         private System.Windows.Forms.ToolStripStatusLabel tslblConnState;
         private System.Windows.Forms.Label lblLoadedInfo;
         private System.Windows.Forms.Label lblSavedInfo;
+        private System.Windows.Forms.CheckBox chkAppend;
     }
 }
 
