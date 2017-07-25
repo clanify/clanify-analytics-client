@@ -166,125 +166,11 @@ namespace clanify_analyzer_client
             }
         }
 
-        //function to fill the combobox with all the available events.
-        private void fillCmbEventName()
-        {
-            //clear the list of events to initialize.
-            cmbInfoEventName.Items.Clear();
-
-            //init a empty list for all combobox items.
-            List<ComboBoxItem> items = new List<ComboBoxItem>();
-
-            //check if a database connection is available.
-            if (this.dbConnection != null)
-            {
-                //check if the database connection is open.
-                if (this.dbConnection.State != ConnectionState.Open )
-                {
-                    this.dbConnection.Open();
-                }
-
-                //create the SELECT command to get the events from database.
-                string sqlSelect = "SELECT id, name FROM `events` ORDER BY name";
-
-                //bind all parameters to the statement and execute.
-                MySqlCommand cmdSelect = this.dbConnection.CreateCommand();
-                cmdSelect.CommandText = sqlSelect;
-                MySqlDataReader reader = cmdSelect.ExecuteReader();
-
-                //initialize the list with all supported events.
-                Dictionary<int, string> eventList = new Dictionary<int, string>();
-
-                //read all the events from the database.
-                while (reader.Read())
-                {
-                    //get the ID and name of the event.
-                    int id = Convert.ToInt32(reader["id"]);
-                    string name = Convert.ToString(reader["name"]);
-
-                    //add the id and name of the event to the list.
-                    eventList.Add(id, name);
-                }
-
-                //close the database reader and connection again.
-                reader.Close();
-                reader.Dispose();
-                reader = null;
-
-                //close the connection again.
-                if (this.dbConnection.State == ConnectionState.Open )
-                {
-                    this.dbConnection.Close();
-                }
-
-                //run through all events to initialize the list of events.
-                foreach (KeyValuePair<int, string> eventListItem in eventList)
-                {
-                    //create the new combobox item.
-                    ComboBoxItem cItem = new ComboBoxItem()
-                    {
-                        Text = eventListItem.Value,
-                        Value = eventListItem.Key
-                    };
-
-                    //add the combobox item to the list.
-                    items.Add(cItem);
-                }
-            }
-            
-            //set the list as datasource.
-            cmbInfoEventName.DataSource = items;
-            cmbInfoEventName.DisplayMember = "Text";
-            cmbInfoEventName.ValueMember = "Value";
-
-            //set the first item as default.
-            cmbInfoEventName.SelectedValue = 1;
-        }
         
-        //function to fill the combobox with all the available maps.
-        private void fillCmbMapName()
-        {
-            //create a list with all supported maps.
-            Dictionary<string, string> mapList = new Dictionary<string, string>
-            {
-                { "de_cbble", "Cobblestone" },
-                { "de_inferno", "Inferno" },
-                { "de_cache", "Cache" },
-                { "de_mirage", "Mirage" },
-                { "de_overpass", "Overpass" },
-                { "de_nuke", "Nuke" },
-                { "de_train", "Train" },
-                { "de_dust2", "Dust2" }
-            };
+        
 
-            //clear the list of maps to initialize.
-            cmbInfoMapName.Items.Clear();
 
-            //init a empty list for all combobox items.
-            List<ComboBoxItem> items = new List<ComboBoxItem>();
-            
-            //run through all maps to initialize the list of maps.
-            foreach (KeyValuePair<string, string> mapListItem in mapList)
-            {
-                //initialize the item for the list.
-                ComboBoxItem cItem = new ComboBoxItem()
-                {
-                    Text = mapListItem.Value,
-                    Value = mapListItem.Key
-                };
 
-                //add the new combobox item.
-                items.Add(cItem);
-            }
-
-            //set the list as datasource.
-            cmbInfoMapName.DataSource = items;
-            cmbInfoMapName.DisplayMember = "Text";
-            cmbInfoMapName.ValueMember = "Value";
-
-            //set the first item as default.
-            cmbInfoMapName.SelectedValue = "de_cbble";
-        }
 
         //handler for the event if a player was killed.
         private void HandlePlayerKilled(object sender, DemoInfo.PlayerKilledEventArgs e)
@@ -326,6 +212,151 @@ namespace clanify_analyzer_client
             this.dtFrags.Rows.Add(drNewFrag);
         }
 
+
+        /// ----------------------------------------------------------------------------------------------------
+        /// -- Funktionen um die Oberfläche und die Kontrollen initialisieren zu können.
+        /// ----------------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Funktion um die ComboBox mit den Events aus der Datenbank zu füllen.
+        /// </summary>
+        private void FillCmbEventName()
+        {
+            //Die Liste der Events leeren um durch die Datenbank zu initialisieren.
+            cmbInfoEventName.Items.Clear();
+
+            //Elemente für die ComboBox leeren und initialisieren.
+            List<ComboBoxItem> items = new List<ComboBoxItem>();
+
+            //Prüfen ob eine Datenbank-Verbindung vorhanden ist.
+            if (this.dbConnection != null)
+            {
+                //Prüfen ob die Verbindung zur Datenbank offen ist.
+                if (this.dbConnection.State != ConnectionState.Open)
+                {
+                    this.dbConnection.Open();
+                }
+
+                //Erstellen der SELECT-Abfrage um die Events aus der Datenbank zu ermitteln.
+                string sqlSelect = "SELECT `id`, `name` FROM `events` ORDER BY `name`";
+
+                //Die SELECT-Abfrage als Befehl setzen und ausführen.
+                MySqlCommand cmdSelect = this.dbConnection.CreateCommand();
+                cmdSelect.CommandText = sqlSelect;
+                MySqlDataReader reader = cmdSelect.ExecuteReader();
+
+                //Initialisieren der Event-Liste (um das Egebnis der Abfrage zu speichern).
+                Dictionary<int, string> eventList = new Dictionary<int, string>();
+
+                //Alle Einträge aus der Datenbank lesen.
+                while (reader.Read())
+                {
+                    eventList.Add(Convert.ToInt32(reader["id"]), Convert.ToString(reader["name"]));
+                }
+
+                //Ergebnis der Abfrage zurücksetzen und Speicher wieder freigeben.
+                reader.Close();
+                reader.Dispose();
+                reader = null;
+
+                //Falls die Verbindung noch offen ist schließen wir diese wieder.
+                if (this.dbConnection.State == ConnectionState.Open)
+                {
+                    this.dbConnection.Close();
+                }
+
+                //Alle Events in die Liste der ComboBox-Elemente setzen.
+                foreach (KeyValuePair<int, string> eventListItem in eventList)
+                {
+                    //Das neue ComboBox-Element erstellen.
+                    ComboBoxItem cItem = new ComboBoxItem()
+                    {
+                        Text = eventListItem.Value,
+                        Value = eventListItem.Key
+                    };
+
+                    //Das neu erstellte ComboBox-Element in die Liste setzen.
+                    items.Add(cItem);
+                }
+            }
+
+            //Liste in die ComboBox setzen (falls keine Verbindung bleibt diese leer).
+            cmbInfoEventName.DataSource = items;
+            cmbInfoEventName.DisplayMember = "Text";
+            cmbInfoEventName.ValueMember = "Value";
+            cmbInfoEventName.SelectedValue = 1;
+        }
+
+        /// <summary>
+        /// Funktion um die ComboBox mit den Karten / Maps aus der Datenbank zu füllen.
+        /// </summary>
+        private void FillCmbMapName()
+        {
+            //Die Liste der Karten / Maps leeren um durch die Datenbank zu initialisieren.
+            cmbInfoMapName.Items.Clear();
+
+            //Elemente für die ComboBox leeren und initialisieren.
+            List<ComboBoxItem> items = new List<ComboBoxItem>();
+
+            //Prüfen ob eine Datenbank-Verbindung vorhanden ist.
+            if (this.dbConnection != null)
+            {
+                //Prüfen ob die Verbindung zur Datenbank offen ist.
+                if (this.dbConnection.State != ConnectionState.Open)
+                {
+                    this.dbConnection.Open();
+                }
+
+                //Erstellen der SELECT-Abfrage um die Karten / Maps aus der Datenbank zu ermitteln.
+                string sqlSelect = "SELECT `name`, `title` FROM `maps` ORDER BY `title`";
+
+                //Die SELECT-Abfrage als Befehl setzen und ausführen.
+                MySqlCommand cmdSelect = this.dbConnection.CreateCommand();
+                cmdSelect.CommandText = sqlSelect;
+                MySqlDataReader reader = cmdSelect.ExecuteReader();
+
+                //Initialisieren der Karten-Liste (um das Egebnis der Abfrage zu speichern).
+                Dictionary<string, string> mapList = new Dictionary<string, string>();
+
+                //Alle Einträge aus der Datenbank lesen.
+                while (reader.Read())
+                {
+                    mapList.Add(Convert.ToString(reader["name"]), Convert.ToString(reader["title"]));
+                }
+
+                //Ergebnis der Abfrage zurücksetzen und Speicher wieder freigeben.
+                reader.Close();
+                reader.Dispose();
+                reader = null;
+
+                //Falls die Verbindung noch offen ist schließen wir diese wieder.
+                if (this.dbConnection.State == ConnectionState.Open)
+                {
+                    this.dbConnection.Close();
+                }
+
+                //Alle Karten / Maps in die Liste der ComboBox-Elemente setzen.
+                foreach (KeyValuePair<string, string> mapListItem in mapList)
+                {
+                    //Das neue ComboBox-Element erstellen.
+                    ComboBoxItem cItem = new ComboBoxItem()
+                    {
+                        Text = mapListItem.Value,
+                        Value = mapListItem.Key
+                    };
+
+                    //Das neu erstellte ComboBox-Element in die Liste setzen.
+                    items.Add(cItem);
+                }
+            }
+
+            //Liste in die ComboBox setzen (falls keine Verbindung bleibt diese leer).
+            cmbInfoMapName.DataSource = items;
+            cmbInfoMapName.DisplayMember = "Text";
+            cmbInfoMapName.ValueMember = "Value";
+            cmbInfoMapName.SelectedValue = "de_cbble";
+        }
+
         /// ----------------------------------------------------------------------------------------------------
         /// -- Events und Funktionen welche den Runden-Beginn verarbeiten.
         /// ----------------------------------------------------------------------------------------------------
@@ -343,7 +374,6 @@ namespace clanify_analyzer_client
             this.drRound["match_id"] = drMatch["id"];
             this.drRound["tick_start"] = demo.CurrentTick;
         }
-
 
         /// ----------------------------------------------------------------------------------------------------
         /// -- Events und Funktionen welche das Runden-Ende verarbeiten.
@@ -825,8 +855,8 @@ namespace clanify_analyzer_client
             checkConnectionDB();
 
             //initialize the list of events and maps.
-            this.fillCmbEventName();
-            this.fillCmbMapName();
+            this.FillCmbEventName();
+            this.FillCmbMapName();
 
             //set the default date and time to the current day and hour.
             DateTime currentDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, 0, 0);
