@@ -31,6 +31,7 @@ namespace clanify_analyzer_client
         private DataTable dtMatchPlayers = null;
         private DataTable dtWeaponEvents = null;
         private DataTable dtRounds = null;
+        private DataTable dtBombEvents = null;
 
         public frmClient()
         {
@@ -358,6 +359,143 @@ namespace clanify_analyzer_client
         }
 
         /// ----------------------------------------------------------------------------------------------------
+        /// -- Events um die Aktionen der Bombe verarbeiten zu können.
+        /// ----------------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Event welches aufgerufen wird, wenn das Entschärfen der Bombe begonnen wird.
+        /// </summary>
+        private void HandleBombBeginDefuse(object sender, DemoInfo.BombDefuseEventArgs e)
+        {
+            //Informationen der Demo ermitteln.
+            DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
+
+            //Neue Zeile mit den Informationen des Events erstellen und hinzufügen.
+            DataRow drNewBombEvent = this.dtBombEvents.NewRow();
+            drNewBombEvent["match_id"] = this.drMatch["id"];
+            drNewBombEvent["round"] = (demo.CTScore + demo.TScore) + 1;
+            drNewBombEvent["tick"] = demo.CurrentTick;
+            drNewBombEvent["player_steam_id"] = e.Player.SteamID;
+            drNewBombEvent["has_kit"] = e.HasKit;
+            drNewBombEvent["event"] = TableBombEvents.EVENT_DEFUSE_BEGIN;
+            this.dtBombEvents.Rows.Add(drNewBombEvent);
+        }
+
+        /// <summary>
+        /// Event welches aufgerufen wird, wenn das Entschärfen der Bombe abgebrochen wurde.
+        /// </summary>
+        private void HandleBombAbortDefuse(object sender, DemoInfo.BombDefuseEventArgs e)
+        {
+            //Informationen der Demo ermitteln.
+            DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
+
+            //Neue Zeile mit den Informationen des Events erstellen und hinzufügen.
+            DataRow drNewBombEvent = this.dtBombEvents.NewRow();
+            drNewBombEvent["match_id"] = this.drMatch["id"];
+            drNewBombEvent["round"] = (demo.CTScore + demo.TScore) + 1;
+            drNewBombEvent["tick"] = demo.CurrentTick;
+            drNewBombEvent["player_steam_id"] = e.Player.SteamID;
+            drNewBombEvent["has_kit"] = e.HasKit;
+            drNewBombEvent["event"] = TableBombEvents.EVENT_DEFUSE_ABORT;
+            this.dtBombEvents.Rows.Add(drNewBombEvent);
+        }
+
+        /// <summary>
+        /// Event welches aufgerufen wird, wenn das Entschärfen der Bombe abgeschlossen wurde.
+        /// </summary>
+        private void HandleBombDefused(object sender, DemoInfo.BombEventArgs e)
+        {
+            //Informationen der Demo ermitteln.
+            DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
+
+            //Neue Zeile mit den Informationen des Events erstellen und hinzufügen.
+            DataRow drNewBombEvent = this.dtBombEvents.NewRow();
+            drNewBombEvent["match_id"] = this.drMatch["id"];
+            drNewBombEvent["round"] = (demo.CTScore + demo.TScore) + 1;
+            drNewBombEvent["tick"] = demo.CurrentTick;
+            drNewBombEvent["player_steam_id"] = e.Player.SteamID;
+            drNewBombEvent["site"] = e.Site;
+            drNewBombEvent["event"] = TableBombEvents.EVENT_DEFUSE_DEFUSED;
+            this.dtBombEvents.Rows.Add(drNewBombEvent);
+        }
+
+        /// <summary>
+        /// Event welches aufgerufen wird, wenn das Entschärfen der Bombe begonnen wird.
+        /// </summary>
+        private void HandleBombBeginPlant(object sender, DemoInfo.BombEventArgs e)
+        {
+            //Informationen der Demo ermitteln.
+            DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
+
+            //Neue Zeile mit den Informationen des Events erstellen und hinzufügen.
+            DataRow drNewBombEvent = this.dtBombEvents.NewRow();
+            drNewBombEvent["match_id"] = this.drMatch["id"];
+            drNewBombEvent["round"] = (demo.CTScore + demo.TScore) + 1;
+            drNewBombEvent["tick"] = demo.CurrentTick;
+            drNewBombEvent["player_steam_id"] = e.Player.SteamID;
+            drNewBombEvent["site"] = e.Site;
+            drNewBombEvent["event"] = TableBombEvents.EVENT_PLANT_BEGIN;
+            this.dtBombEvents.Rows.Add(drNewBombEvent);
+        }
+
+        /// <summary>
+        /// Event welches aufgerufen wird, wenn das Legen der Bombe abgebrochen wurde.
+        /// </summary>
+        private void HandleBombAbortPlant(object sender, DemoInfo.BombEventArgs e)
+        {
+            //Informationen der Demo ermitteln.
+            DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
+
+            //Neue Zeile mit den Informationen des Events erstellen und hinzufügen.
+            DataRow drNewBombEvent = this.dtBombEvents.NewRow();
+            drNewBombEvent["match_id"] = this.drMatch["id"];
+            drNewBombEvent["round"] = (demo.CTScore + demo.TScore) + 1;
+            drNewBombEvent["tick"] = demo.CurrentTick;
+            drNewBombEvent["player_steam_id"] = e.Player.SteamID;
+            drNewBombEvent["site"] = e.Site;
+            drNewBombEvent["event"] = TableBombEvents.EVENT_PLANT_ABORT;
+            this.dtBombEvents.Rows.Add(drNewBombEvent);
+        }
+
+        /// <summary>
+        /// Event welches aufgerufen wird, wenn das Legen der Bombe abgeschlossen wurde.
+        /// </summary>
+        private void HandleBombPlanted(object sender, DemoInfo.BombEventArgs e)
+        {
+            //Informationen der Demo ermitteln.
+            DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
+
+            //Neue Zeile mit den Informationen des Events erstellen und hinzufügen.
+            DataRow drNewBombEvent = this.dtBombEvents.NewRow();
+            drNewBombEvent["match_id"] = this.drMatch["id"];
+            drNewBombEvent["round"] = (demo.CTScore + demo.TScore) + 1;
+            drNewBombEvent["tick"] = demo.CurrentTick;
+            drNewBombEvent["player_steam_id"] = e.Player.SteamID;
+            drNewBombEvent["site"] = e.Site;
+            drNewBombEvent["event"] = TableBombEvents.EVENT_PLANT_PLANTED;
+            this.dtBombEvents.Rows.Add(drNewBombEvent);
+        }
+
+        /// <summary>
+        /// Event welches aufgerufen wird, wenn die Bombe explodiert.
+        /// </summary>
+        private void HandleBombExploded(object sender, DemoInfo.BombEventArgs e)
+        {
+            //Informationen der Demo ermitteln.
+            DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
+
+            //Neue Zeile mit den Informationen des Events erstellen und hinzufügen.
+            DataRow drNewBombEvent = this.dtBombEvents.NewRow();
+            drNewBombEvent["match_id"] = this.drMatch["id"];
+            drNewBombEvent["round"] = (demo.CTScore + demo.TScore) + 1;
+            drNewBombEvent["tick"] = demo.CurrentTick;
+            drNewBombEvent["player_steam_id"] = e.Player.SteamID;
+            drNewBombEvent["site"] = e.Site;
+            drNewBombEvent["event"] = TableBombEvents.EVENT_EXPLODED;
+            this.dtBombEvents.Rows.Add(drNewBombEvent);
+        }
+
+        /// ----------------------------------------------------------------------------------------------------
         /// -- Events und Funktionen welche den Runden-Beginn verarbeiten.
         /// ----------------------------------------------------------------------------------------------------
 
@@ -526,9 +664,9 @@ namespace clanify_analyzer_client
         }
        
         /// <summary>
-        /// Funktion um die letzte vorhandene Runde aus der Tabelle der Runden zu ermitteln.
+        /// Funktion um die letzte / höchste Runden-Nummer aus der Tabelle der Runden zu ermitteln.
         /// </summary>
-        /// <returns>Die letzte vorhandene Runde in der Tabelle der Runden.</returns>
+        /// <returns>Die letzte / höchste Runden-Nummer aus der Tabelle der Runden.</returns>
         private int maxRoundFromRounds()
         {
             //Zurücksetzen der Runde und der temporären Runde.
@@ -646,6 +784,7 @@ namespace clanify_analyzer_client
                 this.dtFrags.Rows.Clear();
                 this.dtWeaponEvents.Rows.Clear();
                 this.dtRounds.Rows.Clear();
+                this.dtBombEvents.Rows.Clear();
             }
         }
         
@@ -787,6 +926,10 @@ namespace clanify_analyzer_client
                     //init the table for the rounds information.
                     TableRounds clsRounds = new TableRounds(this.dbConnection);
                     this.dtRounds = clsRounds.getTableSchema();
+
+                    //Initialisieren der Tabelle 'bomb_events'.
+                    TableBombEvents clsBombEvents = new TableBombEvents(this.dbConnection);
+                    this.dtBombEvents = clsBombEvents.getTableSchema();
                 }
                 
                 //bind the main demo events to their handler.
@@ -797,6 +940,13 @@ namespace clanify_analyzer_client
                 demo.RoundOfficiallyEnd += HandleRoundOfficialEnd;
                 demo.MatchStarted += HandleMatchStarted;
                 demo.WeaponFired += HandleWeaponFired;
+                demo.BombAbortDefuse += HandleBombAbortDefuse;
+                demo.BombAbortPlant += HandleBombAbortPlant;
+                demo.BombBeginDefuse += HandleBombBeginDefuse;
+                demo.BombBeginPlant += HandleBombBeginPlant;
+                demo.BombDefused += HandleBombDefused;
+                demo.BombExploded += HandleBombExploded;
+                demo.BombPlanted += HandleBombPlanted;
 
                 //check which mode shoud be used.
                 if (unsafeMode == true)
@@ -904,6 +1054,10 @@ namespace clanify_analyzer_client
             //save the rounds to the database.
             TableRounds clsTableRounds = new TableRounds(this.dbConnection);
             clsTableRounds.saveTable(this.dtRounds, (Int64)drMatch["id"]);
+
+            //Speichern der Bomben-Events in der Datenbank.
+            TableBombEvents clsTableBombEvents = new TableBombEvents(this.dbConnection);
+            clsTableBombEvents.saveTable(this.dtBombEvents, (Int64)drMatch["id"]);
 
             //set the feedback for the user.
             lblSavedInfo.BackColor = ControlPaint.Light(Color.Green);

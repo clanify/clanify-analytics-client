@@ -72,6 +72,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Database\TableBombEvents.cs" />
     <Compile Include="Database\TableDamage.cs" />
     <Compile Include="Database\TableFrags.cs" />
     <Compile Include="Database\TableMatch.cs" />
