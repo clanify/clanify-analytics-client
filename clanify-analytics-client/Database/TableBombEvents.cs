@@ -38,7 +38,7 @@ namespace clanify_analyzer_client.Database
         /// Methode um das Tabellen-Schema für den Speicher zu ermitteln.
         /// </summary>
         /// <returns>Das Tabellen-Schema als DataTable.</returns>
-        public DataTable getTableSchema()
+        public DataTable GetTableSchema()
         {
             DataTable dtBombEvents = new DataTable("bomb_events");
             dtBombEvents.Columns.Add(new DataColumn("match_id", System.Type.GetType("System.Int64")));
@@ -57,7 +57,7 @@ namespace clanify_analyzer_client.Database
         /// <param name="dtBombEvents">Die Tabelle mit den Zeilen welche gespeichert werden sollen.</param>
         /// <param name="matchID">Die ID des Spiels für welches die Zeilen gespeichert werden sollen.</param>
         /// <returns>Der Status ob die Zeilen der Tabelle gespeichert werden konnten.</returns>
-        public bool saveTable(DataTable dtBombEvents, Int64 matchID)
+        public bool SaveDataTable(DataTable dtBombEvents, Int64 matchID)
         {
             try
             {

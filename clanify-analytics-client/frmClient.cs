@@ -167,21 +167,25 @@ namespace clanify_analyzer_client
             }
         }
 
-        
-        
 
 
 
 
-        //handler for the event if a player was killed.
+        /// ----------------------------------------------------------------------------------------------------
+        /// -- Alle Events wenn ein Spieler Schaden genommen hat oder 'is fragged'.
+        /// ----------------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Event welches aufgerufen wird, wenn ein Spieler 'is fragged'.
+        /// </summary>
         private void HandlePlayerKilled(object sender, DemoInfo.PlayerKilledEventArgs e)
         {
-            //get the demo information.
+            //Informationen der Demo ermitteln.
             DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
 
-            //set the information about the frag to a new row.
+            //Informationen des 'frags' setzen.
             DataRow drNewFrag = this.dtFrags.NewRow();
-            drNewFrag["match_id"] = drMatch["id"];
+            drNewFrag["match_id"] = this.drMatch["id"];
             drNewFrag["round"] = demo.TScore + demo.CTScore + 1;
             drNewFrag["tick"] = demo.CurrentTick;
             drNewFrag["victim_steam_id"] = e.Victim.SteamID;
@@ -192,7 +196,9 @@ namespace clanify_analyzer_client
             drNewFrag["victim_hp"] = e.Victim.HP;
             drNewFrag["killer_weapon"] = e.Weapon.Weapon;
 
-            //check if a killer is available (some players jumps to deep or can't handle weapons :D).
+            //Prüfen ob ein Spieler vorhanden ist, welcher den 'frag' verursacht hat.
+            //Da ein Spieler auch einfach nur tief fallen kann oder das Handling seiner Waffe
+            //nicht verstanden hat, gibt es nicht immer einen Verantwortlichen :D.
             if (e.Killer != null)
             {
                 drNewFrag["killer_steam_id"] = e.Killer.SteamID;            
@@ -203,16 +209,68 @@ namespace clanify_analyzer_client
                 drNewFrag["is_headshot"] = e.Headshot;
             }
             
+            //Falls der 'frag' auch durch die Hilfe eines Dritten erreicht wurde merken wir uns diesen auch.
             //check if a assister is available.
             if (e.Assister != null)
             {
                 drNewFrag["assister_steam_id"] = e.Assister.SteamID;
             }
             
-            //set the new row to the table.
+            //Den neuen 'frag' in die Tabelle mit den anderen 'frags' setzen. 
             this.dtFrags.Rows.Add(drNewFrag);
         }
 
+        /// <summary>
+        /// Event welches aufgerufen wird, wenn einem Spieler Schaden zugefügt wurde.
+        /// </summary>
+        private void HandlePlayerHurt(object sender, DemoInfo.PlayerHurtEventArgs e)
+        {
+            //Informationen der Demo ermitteln.
+            DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
+
+            //Informationen des Schadens in eine neue Zeile setzen.
+            DataRow drNewDamage = this.dtDamage.NewRow();
+            drNewDamage["match_id"] = drMatch["id"];
+            drNewDamage["round"] = demo.TScore + demo.CTScore + 1;
+            drNewDamage["tick"] = demo.CurrentTick;
+            drNewDamage["victim_steam_id"] = e.Player.SteamID;
+            drNewDamage["victim_weapon"] = e.Player.ActiveWeapon.Weapon;
+            drNewDamage["victim_position_x"] = e.Player.Position.X;
+            drNewDamage["victim_position_y"] = e.Player.Position.Y;
+            drNewDamage["victim_position_z"] = e.Player.Position.Z;
+            drNewDamage["victim_health"] = e.Health;
+            drNewDamage["victim_health_damage"] = e.HealthDamage;
+            drNewDamage["victim_armor"] = e.Armor;
+            drNewDamage["victim_armor_damage"] = e.ArmorDamage;
+            drNewDamage["victim_hp"] = e.Player.HP;
+            drNewDamage["hitgroup"] = e.Hitgroup;
+
+            //Falls ein Angreifer vorhanden ist, setzen wir dessen Informationen,
+            //ansonsten hat der Spieler sich selbst Schaden zugefügt (Sprung oder Nade).
+            if (e.Attacker != null)
+            {
+                //Ein Angreifer ist vorhanden, also setzen wir dessen Informationen.
+                drNewDamage["attacker_steam_id"] = e.Attacker.SteamID;
+                drNewDamage["attacker_weapon"] = e.Weapon.Weapon;
+                drNewDamage["attacker_position_x"] = e.Attacker.Position.X;
+                drNewDamage["attacker_position_y"] = e.Attacker.Position.Y;
+                drNewDamage["attacker_position_z"] = e.Attacker.Position.Z;
+                drNewDamage["attacker_hp"] = e.Attacker.HP;
+            }
+            else
+            {
+                //Sollte der Spieler sich selbst verletzen, merken wir uns das auch.
+                drNewDamage["attacker_steam_id"] = e.Player.SteamID;
+                drNewDamage["attacker_weapon"] = e.Weapon.Weapon;
+                drNewDamage["attacker_position_x"] = e.Player.Position.X;
+                drNewDamage["attacker_position_y"] = e.Player.Position.Y;
+                drNewDamage["attacker_position_z"] = e.Player.Position.Z;
+                drNewDamage["attacker_hp"] = e.Player.HP;
+            }
+
+            //Die neue Zeile mit den Informationen zum Schaden setzen.
+            this.dtDamage.Rows.Add(drNewDamage);
+        }
 
         /// ----------------------------------------------------------------------------------------------------
         /// -- Funktionen um die Oberfläche und die Kontrollen initialisieren zu können.
@@ -692,53 +750,7 @@ namespace clanify_analyzer_client
 
         
 
-        //handler for the event if a player was hurt.
-        private void HandlePlayerHurt(object sender, DemoInfo.PlayerHurtEventArgs e)
-        {
-            //get the demo information.
-            DemoInfo.DemoParser demo = (DemoInfo.DemoParser)sender;
-
-            //set the information about the damage to a new row.
-            DataRow drNewDamage = this.dtDamage.NewRow();
-            drNewDamage["match_id"] = drMatch["id"];
-            drNewDamage["round"] = demo.TScore + demo.CTScore + 1;
-            drNewDamage["tick"] = demo.CurrentTick;
-            drNewDamage["victim_steam_id"] = e.Player.SteamID;
-            drNewDamage["victim_weapon"] = e.Player.ActiveWeapon.Weapon;
-            drNewDamage["victim_position_x"] = e.Player.Position.X;
-            drNewDamage["victim_position_y"] = e.Player.Position.Y;
-            drNewDamage["victim_position_z"] = e.Player.Position.Z;
-            drNewDamage["victim_health"] = e.Health;
-            drNewDamage["victim_health_damage"] = e.HealthDamage;
-            drNewDamage["victim_armor"] = e.Armor;
-            drNewDamage["victim_armor_damage"] = e.ArmorDamage;
-            drNewDamage["victim_hp"] = e.Player.HP;
-            drNewDamage["hitgroup"] = e.Hitgroup;
-
-            //check if a attacker is available (can be null on own damage).
-            if (e.Attacker != null)
-            {
-                drNewDamage["attacker_steam_id"] = e.Attacker.SteamID;
-                drNewDamage["attacker_weapon"] = e.Weapon.Weapon;
-                drNewDamage["attacker_position_x"] = e.Attacker.Position.X;
-                drNewDamage["attacker_position_y"] = e.Attacker.Position.Y;
-                drNewDamage["attacker_position_z"] = e.Attacker.Position.Z;
-                drNewDamage["attacker_hp"] = e.Attacker.HP;
-            }
-            else
-            {
-                //but we should know if the player hurt himself.
-                drNewDamage["attacker_steam_id"] = e.Player.SteamID;
-                drNewDamage["attacker_weapon"] = e.Weapon.Weapon;
-                drNewDamage["attacker_position_x"] = e.Player.Position.X;
-                drNewDamage["attacker_position_y"] = e.Player.Position.Y;
-                drNewDamage["attacker_position_z"] = e.Player.Position.Z;
-                drNewDamage["attacker_hp"] = e.Player.HP;
-            }
-            
-            //set the new row to the table.
-            this.dtDamage.Rows.Add(drNewDamage);
-        }
+       
 
         //handler for the event if the header was parsed.
         private void HandleHeaderParsed(object sender, DemoInfo.HeaderParsedEventArgs e)
@@ -929,7 +941,7 @@ namespace clanify_analyzer_client
 
                     //Initialisieren der Tabelle 'bomb_events'.
                     TableBombEvents clsBombEvents = new TableBombEvents(this.dbConnection);
-                    this.dtBombEvents = clsBombEvents.getTableSchema();
+                    this.dtBombEvents = clsBombEvents.GetTableSchema();
                 }
                 
                 //bind the main demo events to their handler.
@@ -1057,7 +1069,7 @@ namespace clanify_analyzer_client
 
             //Speichern der Bomben-Events in der Datenbank.
             TableBombEvents clsTableBombEvents = new TableBombEvents(this.dbConnection);
-            clsTableBombEvents.saveTable(this.dtBombEvents, (Int64)drMatch["id"]);
+            clsTableBombEvents.SaveDataTable(this.dtBombEvents, (Int64)drMatch["id"]);
 
             //set the feedback for the user.
             lblSavedInfo.BackColor = ControlPaint.Light(Color.Green);
