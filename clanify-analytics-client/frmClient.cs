@@ -587,7 +587,7 @@ namespace clanify_analyzer_client
             //Status ermitteln ob wir uns in der ersten Runde befinden. Es
             //muss sich dabei um die erste Runde des gesamten Spiels handeln.
             //Durch mehrteilige Demos können auch mehrere erste Runden auftreten.
-            bool overallFirstRound = (!chkAppend.Checked) && ((demo.CTScore + demo.TScore + 1) == 1);
+            bool overallFirstRound = (!chkAppend.Checked) && ((demo.CTScore + demo.TScore + 1) == 1) && (this.dtMatchPlayers.Rows.Count == 0);
 
             //In der ersten Runde des Spiels kümmern wir uns um die Teams.
             //In der Regel sollten hier alle am Start sein und keiner fehlen. Falls doch muss
@@ -625,22 +625,26 @@ namespace clanify_analyzer_client
                         {
                             this.dtPlayers.Rows.Add(drNewPlayer);
                         }
-
-                        //Den Spieler nun auch als Teilnehmer dieses Spiels speichern.
-                        DataRow drMatchPlayer = this.dtMatchPlayers.NewRow();
-                        drMatchPlayer["match_id"] = this.drMatch["id"];
-                        drMatchPlayer["steam_id"] = player.SteamID;
-
-                        //Die Verbindung zwischen dem Spieler und Team wird nachfolgend gesetzt.
-                        if (player.Team == DemoInfo.Team.Terrorist)
+                        
+                        //Wie auch bei den Spielern müssen wir prüfen ob die Verbindung zum Spiel bereits vorhanden ist.
+                        if (this.dtMatchPlayers.Select("match_id = " + this.drMatch["id"] + " AND steam_id = " + player.SteamID).Length == 0)
                         {
-                            drMatchPlayer["team_id"] = this.dtTeams.Select("name = '" + demo.TClanName + "'")[0]["id"];
-                            this.dtMatchPlayers.Rows.Add(drMatchPlayer);
-                        }
-                        else
-                        {
-                            drMatchPlayer["team_id"] = this.dtTeams.Select("name = '" + demo.CTClanName + "'")[0]["id"];
-                            this.dtMatchPlayers.Rows.Add(drMatchPlayer);
+                            //Den Spieler nun auch als Teilnehmer dieses Spiels speichern.
+                            DataRow drMatchPlayer = this.dtMatchPlayers.NewRow();
+                            drMatchPlayer["match_id"] = this.drMatch["id"];
+                            drMatchPlayer["steam_id"] = player.SteamID;
+
+                            //Die Verbindung zwischen dem Spieler und Team wird nachfolgend gesetzt.
+                            if (player.Team == DemoInfo.Team.Terrorist)
+                            {
+                                drMatchPlayer["team_id"] = this.dtTeams.Select("name = '" + demo.TClanName + "'")[0]["id"];
+                                this.dtMatchPlayers.Rows.Add(drMatchPlayer);
+                            }
+                            else
+                            {
+                                drMatchPlayer["team_id"] = this.dtTeams.Select("name = '" + demo.CTClanName + "'")[0]["id"];
+                                this.dtMatchPlayers.Rows.Add(drMatchPlayer);
+                            }
                         }
                     }
                 }
